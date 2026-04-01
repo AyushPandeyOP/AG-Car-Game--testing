@@ -85,6 +85,11 @@
             font-size: 30px;
             z-index: 10;
         }
+
+        .about-text {
+            font-size: 14px;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -92,7 +97,7 @@
     <div id="menu" class="menu">
         <h1>Endless Car Racing</h1>
         <button id="startButton" class="button">Start Game</button>
-        <div id="about" class="hidden">
+        <div id="about" class="about-text">
             Designer and developed by Ayush Pandey JI
         </div>
     </div>
@@ -114,33 +119,34 @@
         const speedometer = document.getElementById('speedometer');
         const nitroBar = document.getElementById('nitroBar');
 
-        let scene, camera, renderer, car, carModel, nitroAmount = 100;
-        let controls, clock, deltaTime, speed = 0, nitroBoosting = false;
+        let scene, camera, renderer, car, carModel, carSpeed = 0, nitroAmount = 100;
+        let roadSegments = [], isGameRunning = false;
+        let controls = { forward: false, backward: false, left: false, right: false, nitro: false };
 
-        const roadSegments = [];
-        let gameStarted = false;
+        let clock = new THREE.Clock();
 
-        // Setting up the scene
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-            clock = new THREE.Clock();
-            window.addEventListener('resize', onWindowResize, false);
+
+            camera.position.z = 5;
+
             setupLighting();
             loadCarModel();
+            createRoad();
             setupControls();
-            setupRoad();
-            updateUI();
+
+            window.addEventListener('resize', onWindowResize, false);
         }
 
         function setupLighting() {
-            const ambientLight = new THREE.AmbientLight(0xcccccc, 1);
+            const ambientLight = new THREE.AmbientLight(0xaaaaaa, 1);
             scene.add(ambientLight);
             const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(5, 10, 5);
+            directionalLight.position.set(10, 10, 10);
             scene.add(directionalLight);
         }
 
@@ -151,19 +157,21 @@
                 carModel.scale.set(0.5, 0.5, 0.5);
                 car = carModel;
                 scene.add(car);
-                car.position.y = 1;
             });
         }
 
-        function setupControls() {
-            controls = {
-                forward: false,
-                backward: false,
-                left: false,
-                right: false,
-                nitro: false
-            };
+        function createRoad() {
+            const roadGeometry = new THREE.BoxGeometry(10, 0.1, 100);
+            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+            for (let i = 0; i < 5; i++) {
+                const road = new THREE.Mesh(roadGeometry, roadMaterial);
+                road.position.z = -i * 100;
+                scene.add(road);
+                roadSegments.push(road);
+            }
+        }
 
+        function setupControls() {
             window.addEventListener('keydown', (event) => {
                 if (event.code === 'ArrowUp' || event.code === 'KeyW') controls.forward = true;
                 if (event.code === 'ArrowDown' || event.code === 'KeyS') controls.backward = true;
@@ -181,51 +189,40 @@
             });
         }
 
-        function setupRoad() {
-            const roadGeometry = new THREE.BoxGeometry(10, 0.1, 100);
-            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            const road = new THREE.Mesh(roadGeometry, roadMaterial);
-            scene.add(road);
-            road.position.y = -0.05;
-        }
-
         function updateUI() {
-            // Update Speedometer and Nitro
-            speedometer.innerText = `Speed: ${Math.floor(speed)} km/h`;
+            speedometer.innerText = `Speed: ${Math.floor(carSpeed)} km/h`;
             nitroBar.style.width = `${nitroAmount}%`;
 
             if (controls.nitro && nitroAmount > 0) {
                 nitroAmount -= 0.5;
-                nitroBoosting = true;
+                carSpeed += 5;  // Nitro speed boost
             } else {
-                nitroBoosting = false;
+                carSpeed -= 0.1; // Gradual speed loss
                 if (nitroAmount < 100) nitroAmount += 0.2;
             }
         }
 
         function updateGame() {
-            if (gameStarted) {
-                deltaTime = clock.getDelta();
-                if (car) {
-                    if (controls.forward) speed += 0.5;
-                    if (controls.backward) speed -= 0.5;
+            if (!car) return;
+            const deltaTime = clock.getDelta();
+            if (controls.forward) carSpeed += 0.5;
+            if (controls.backward) carSpeed -= 0.5;
 
-                    if (speed < 0) speed = 0;
-                    if (speed > 200) speed = 200;
+            if (carSpeed < 0) carSpeed = 0;
+            if (carSpeed > 200) carSpeed = 200;
 
-                    // Apply Nitro Effect
-                    if (nitroBoosting) {
-                        speed += 3;
-                        car.scale.set(0.5, 0.5, 0.5);
-                    }
+            car.position.z -= carSpeed * deltaTime;
 
-                    car.position.z -= speed * deltaTime;
-                    car.rotation.y += (controls.right - controls.left) * 0.05;
+            if (controls.left) car.rotation.y += 0.1;
+            if (controls.right) car.rotation.y -= 0.1;
 
-                    updateUI();
-                    renderer.render(scene, camera);
+            roadSegments.forEach(road => {
+                if (road.position.z > 10) {
+                    road.position.z -= 100 * deltaTime;
                 }
-            }
+            });
+
+            updateUI();
         }
 
         function onWindowResize() {
@@ -236,7 +233,7 @@
 
         function startGame() {
             menu.classList.add('hidden');
-            gameStarted = true;
+            isGameRunning = true;
             init();
             animate();
         }
@@ -244,11 +241,11 @@
         function animate() {
             requestAnimationFrame(animate);
             updateGame();
+            renderer.render(scene, camera);
         }
 
         startButton.addEventListener('click', startGame);
-
     </script>
 </body>
 
-</html> 
+</html>
