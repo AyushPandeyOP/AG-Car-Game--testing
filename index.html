@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMW M4 Endless Drive | Ayush Pandey JI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #000; }
+        canvas { display: block; }
+
+        /* --- UI ASPHALT STYLE --- */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; color: white;
+        }
+
+        /* Lobby / Start Screen */
+        #lobby {
+            position: absolute; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: auto; transition: 0.5s;
+        }
+
+        #start-btn {
+            padding: 15px 50px; font-size: 24px; font-weight: bold;
+            color: #fff; background: linear-gradient(90deg, #ff0000, #990000);
+            border: none; cursor: pointer; border-radius: 5px;
+            box-shadow: 0 0 20px #ff0000; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            transition: transform 0.2s;
+        }
+        #start-btn:hover { transform: scale(1.1); }
+
+        /* HUD */
+        #hud { display: none; width: 100%; height: 100%; position: relative; }
+        
+        .nitro-bar {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 10px; background: rgba(255,255,255,0.2);
+            border: 2px solid #fff; skew: -20deg;
+        }
+        #nitro-fill { width: 100%; height: 100%; background: #00d4ff; transition: 0.1s; }
+
+        .speed-hud {
+            position: absolute; bottom: 30px; right: 50px;
+            font-size: 48px; font-style: italic; font-weight: 900;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Credits & Settings */
+        .branding { position: absolute; bottom: 10px; left: 20px; font-size: 12px; opacity: 0.8; }
+        
+        #settings-panel {
+            position: absolute; top: 20px; right: 20px; pointer-events: auto;
+            background: rgba(0,0,0,0.8); padding: 15px; border-radius: 10px; border: 1px solid #444;
+            display: none;
+        }
+
+        .about-text { color: #00d4ff; font-weight: bold; margin-top: 10px; border-top: 1px solid #444; padding-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="ui-layer">
+    <div id="lobby">
+        <h1 style="letter-spacing: 5px; text-transform: uppercase;">BMW M4 Runner</h1>
+        <p>Design and Developed By <b>Ayush Pandey JI</b></p>
+        <button id="start-btn" onclick="startGame()">START RACE</button>
+        <p style="margin-top: 20px; font-size: 14px;">Controls: WASD + SHIFT (Nitro)</p>
+        <button style="background:none; border:1px solid white; color:white; cursor:pointer; margin-top:10px;" onclick="toggleSettings()">Settings / About</button>
+    </div>
+
+    <div id="hud">
+        <div class="nitro-bar"><div id="nitro-fill"></div></div>
+        <div class="speed-hud"><span id="speed-val">0</span> <small>KM/H</small></div>
+        <div class="branding">Designed & Developed by Ayush Pandey JI</div>
+    </div>
+
+    <div id="settings-panel">
+        <h3>Settings</h3>
+        <label>Graphics: </label>
+        <select onchange="setGraphics(this.value)">
+            <option value="high">High (Shadows)</option>
+            <option value="low">Low (Performance)</option>
+        </select>
+        <div class="about-text">About: Designer And developed By Ayush Pandey JI</div>
+        <button onclick="toggleSettings()" style="margin-top:10px;">Close</button>
+    </div>
+</div>
+
+<script>
+/* --- GAME ENGINE --- */
+let scene, camera, renderer, car, roadSegments = [], trees = [];
+let speed = 0, targetSpeed = 0, isNitro = false;
+let gameActive = false;
+
+function init() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb); // Sky blue
+    scene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
+
+    // Lights
+    const sun = new THREE.DirectionalLight(0xffffff, 1);
+    sun.position.set(10, 20, 10);
+    sun.castShadow = true;
+    scene.add(sun);
+    scene.add(new THREE.AmbientLight(0x404040, 1.5));
+
+    createCar();
+    createEndlessRoad();
+    createLobbyEnvironment();
+
+    camera.position.set(0, 3, 7);
+    animate();
+}
+
+function createCar() {
+    car = new THREE.Group();
+    
+    // Body (BMW M4 Shape)
+    const bodyGeom = new THREE.BoxGeometry(1.8, 0.6, 4);
+    const bodyMat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const body = new THREE.Mesh(bodyGeom, bodyMat);
+    body.castShadow = true;
+    car.add(body);
+
+    const cabinGeom = new THREE.BoxGeometry(1.4, 0.5, 2);
+    const cabin = new THREE.Mesh(cabinGeom, new THREE.MeshPhongMaterial({ color: 0x111111 }));
+    cabin.position.set(0, 0.5, -0.2);
+    car.add(cabin);
+
+    // Wheels
+    const wheelGeom = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 16);
+    const wheelMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
+    const positions = [[-1, -0.2, 1.2], [1, -0.2, 1.2], [-1, -0.2, -1.2], [1, -0.2, -1.2]];
+    
+    positions.forEach(pos => {
+        const wheel = new THREE.Mesh(wheelGeom, wheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(...pos);
+        car.add(wheel);
+    });
+
+    // Nitro Flames (Hidden by default)
+    const nitroGeom = new THREE.ConeGeometry(0.2, 1, 8);
+    const nitroMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff });
+    this.nitroEffect = new THREE.Mesh(nitroGeom, nitroMat);
+    this.nitroEffect.position.set(0, -0.2, 2.5);
+    this.nitroEffect.rotation.x = Math.PI / 2;
+    this.nitroEffect.visible = false;
+    car.add(this.nitroEffect);
+
+    scene.add(car);
+}
+
+function createEndlessRoad() {
+    const roadGeom = new THREE.PlaneGeometry(10, 100);
+    const roadMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+    
+    for(let i = 0; i < 3; i++) {
+        const road = new THREE.Mesh(roadGeom, roadMat);
+        road.rotation.x = -Math.PI / 2;
+        road.position.z = -i * 100;
+        road.receiveShadow = true;
+        scene.add(road);
+        roadSegments.push(road);
+    }
+
+    // Grass
+    const grassGeom = new THREE.PlaneGeometry(200, 400);
+    const grassMat = new THREE.MeshPhongMaterial({ color: 0x2d5a27 });
+    const grass = new THREE.Mesh(grassGeom, grassMat);
+    grass.rotation.x = -Math.PI / 2;
+    grass.position.y = -0.1;
+    grass.position.z = -100;
+    scene.add(grass);
+}
+
+function createLobbyEnvironment() {
+    // Placeholder for "Girl Character" next to car
+    const charGeom = new THREE.CapsuleGeometry(0.3, 1, 4, 8);
+    const charMat = new THREE.MeshPhongMaterial({ color: 0xffcc99 });
+    const char = new THREE.Mesh(charGeom, charMat);
+    char.position.set(-2.5, 0.7, 0);
+    scene.add(char);
+}
+
+/* --- GAME LOGIC --- */
+const keys = {};
+window.onkeydown = (e) => keys[e.code] = true;
+window.onkeyup = (e) => keys[e.code] = false;
+
+function startGame() {
+    gameActive = true;
+    document.getElementById('lobby').style.display = 'none';
+    document.getElementById('hud').style.display = 'block';
+}
+
+function toggleSettings() {
+    const p = document.getElementById('settings-panel');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function setGraphics(val) {
+    renderer.shadowMap.enabled = (val === 'high');
+    alert("Graphics set to " + val);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+
+    if(gameActive) {
+        // Handling Speed
+        if (keys['KeyW']) targetSpeed = isNitro ? 1.5 : 0.8;
+        else targetSpeed = 0;
+        
+        speed = THREE.MathUtils.lerp(speed, targetSpeed, 0.05);
+        isNitro = keys['ShiftLeft'] && speed > 0.5;
+        
+        // Update Nitro Visuals
+        car.children[car.children.length - 1].visible = isNitro;
+        document.getElementById('nitro-fill').style.width = isNitro ? '40%' : '100%';
+
+        // Movement
+        if (keys['KeyA']) car.position.x -= 0.1;
+        if (keys['KeyD']) car.position.x += 0.1;
+        car.position.x = THREE.MathUtils.clamp(car.position.x, -4, 4);
+
+        // Infinite Road Logic
+        roadSegments.forEach(seg => {
+            seg.position.z += speed * 10;
+            if(seg.position.z > 50) seg.position.z -= 300;
+        });
+
+        // UI Update
+        document.getElementById('speed-val').innerText = Math.floor(speed * 280);
+
+        // Camera Chase
+        camera.position.lerp(new THREE.Vector3(car.position.x, 3, car.position.z + 7), 0.1);
+        camera.lookAt(car.position);
+    }
+
+    renderer.render(scene, camera);
+}
+
+init();
+
+window.onresize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+};
+</script>
+</body>
+</html>
