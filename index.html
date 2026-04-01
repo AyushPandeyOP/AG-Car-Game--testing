@@ -3,189 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMW M4 Extreme - Ayush Pandey JI</title>
+    <title>BMW M4 Pro - Ayush Pandey JI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-        #ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; color: white; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
+        #ui { position: absolute; inset: 0; pointer-events: none; color: white; }
         
-        /* LOBBY */
-        #lobby { position: absolute; inset: 0; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: auto; z-index: 100; }
-        .title { font-size: 60px; font-weight: 900; font-style: italic; color: #ff0000; text-shadow: 0 0 20px #ff0000; margin: 0; }
-        .dev { font-size: 18px; letter-spacing: 3px; color: #00d4ff; margin-bottom: 40px; }
-        #start-btn { padding: 20px 60px; font-size: 25px; font-weight: bold; background: #fff; color: #000; border: none; cursor: pointer; skew: -20deg; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); transition: 0.3s; }
-        #start-btn:hover { background: #ff0000; color: #fff; transform: scale(1.1); }
+        /* ASPHALT 8 STYLE LOBBY */
+        #lobby { 
+            position: absolute; inset: 0; background: radial-gradient(circle, rgba(20,20,30,0.4) 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: auto; z-index: 10;
+        }
+        .logo { font-size: 70px; font-weight: 900; italic; color: #fff; text-shadow: 0 0 20px #ff0000; letter-spacing: -3px; }
+        .dev-tag { color: #00f2ff; letter-spacing: 5px; font-size: 14px; margin-bottom: 50px; text-transform: uppercase; }
+        
+        #start-btn { 
+            padding: 25px 80px; font-size: 30px; background: #ff0000; color: #fff; border: none; 
+            cursor: pointer; clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+            transition: 0.3s; font-weight: bold; box-shadow: 0 0 30px rgba(255,0,0,0.5);
+        }
+        #start-btn:hover { background: #fff; color: #000; transform: scale(1.1) skew(-5deg); }
 
-        /* HUD */
-        #hud { display: none; width: 100%; height: 100%; position: relative; }
-        .nitro-bar { position: absolute; top: 30px; left: 50%; transform: translateX(-50%) skewX(-20deg); width: 400px; height: 12px; background: rgba(255,255,255,0.1); border: 2px solid #00d4ff; box-shadow: 0 0 15px #00d4ff; }
-        #nitro-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #0044ff, #00d4ff); transition: 0.1s; }
-        .speed { position: absolute; bottom: 40px; right: 60px; text-align: right; font-style: italic; }
-        #kmh { font-size: 90px; font-weight: 900; line-height: 0.8; }
-        .unit { font-size: 20px; color: #ff0000; }
+        /* PRO HUD */
+        #hud { display: none; width: 100%; height: 100%; }
+        .nitro-container { 
+            position: absolute; top: 40px; left: 50%; transform: translateX(-50%) skew(-25deg);
+            width: 500px; height: 15px; background: rgba(255,255,255,0.1); border: 2px solid #00f2ff;
+        }
+        #nitro-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #0044ff, #00f2ff); box-shadow: 0 0 15px #00f2ff; }
+        
+        .speedo { 
+            position: absolute; bottom: 50px; right: 80px; text-align: right; 
+            border-right: 8px solid #ff0000; padding-right: 20px;
+        }
+        #num { font-size: 110px; font-weight: 900; line-height: 0.8; font-style: italic; }
+        
+        /* SCREEN BLUR EFFECT DURING NITRO */
+        #overlay { position: absolute; inset: 0; pointer-events: none; transition: 0.3s; }
+        .nitro-active { backdrop-filter: blur(2px) contrast(1.2); box-shadow: inset 0 0 100px rgba(0,242,255,0.3); }
     </style>
 </head>
 <body>
 
+<div id="overlay"></div>
 <div id="ui">
     <div id="lobby">
-        <h1 class="title">BMW M4 ULTIMATE</h1>
-        <div class="dev">DESIGNED & DEVELOPED BY AYUSH PANDEY JI</div>
-        <button id="start-btn" onclick="startGame()">RACE NOW</button>
-        <p style="margin-top:20px; opacity:0.6;">WASD: Drive | Shift: NITRO | Space: Drift</p>
+        <div class="logo">BMW M4 <span style="color:#ff0000">M-POWER</span></div>
+        <div class="dev-tag">Design and Developed By Ayush Pandey JI</div>
+        <button id="start-btn" onclick="startRace()">START MISSION</button>
     </div>
 
     <div id="hud">
-        <div class="nitro-bar"><div id="nitro-fill"></div></div>
-        <div class="speed">
-            <div id="kmh">0</div>
-            <div class="unit">KM/H</div>
+        <div class="nitro-container"><div id="nitro-bar"></div></div>
+        <div class="speedo">
+            <div id="num">000</div>
+            <div style="color:#ff0000; font-weight:bold">KM/H</div>
         </div>
-        <div style="position:absolute; bottom:10px; left:20px; font-size:12px; opacity:0.5;">Ayush Pandey JI Edition</div>
+        <div style="position:absolute; bottom:20px; left:30px; opacity:0.6">AYUSH PANDEY JI | EXPERIMENTAL BUILD v2.0</div>
     </div>
 </div>
 
 <script>
-let scene, camera, renderer, car, roadSegments = [], grassSegments = [];
-let speed = 0, targetSpeed = 0, isNitro = false, active = false;
-let audioCtx, engineOsc, nitroOsc;
+let scene, camera, renderer, car, road = [], deco = [];
+let speed = 0, active = false, isNitro = false;
+let audioCtx, osc;
 
 function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020205);
-    scene.fog = new THREE.Fog(0x020205, 30, 120);
+    scene.fog = new THREE.Fog(0x020205, 10, 150);
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 4, 10);
-
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
+    
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ReinhardToneMapping;
     document.body.appendChild(renderer.domElement);
 
-    // Realistic Lighting
-    const hemi = new THREE.HemisphereLight(0x00d4ff, 0xff0000, 0.6);
-    scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-    sun.position.set(5, 10, 5);
-    scene.add(sun);
+    // Dynamic Lights
+    const ambient = new THREE.AmbientLight(0x404040, 0.5);
+    scene.add(ambient);
+    
+    const blueLight = new THREE.PointLight(0x00f2ff, 2, 50);
+    blueLight.position.set(-5, 5, 5);
+    scene.add(blueLight);
 
     createRoad();
-    createCar();
+    createProCar();
     animate();
 }
 
 function createRoad() {
-    // Road with "Rough" material for better graphics
-    const roadGeo = new THREE.PlaneGeometry(15, 100);
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8, metalness: 0.2 });
+    const roadGeo = new THREE.PlaneGeometry(20, 100);
+    const roadMat = new THREE.MeshStandardMaterial({ 
+        color: 0x0a0a0a, roughness: 0.4, metalness: 0.5 
+    });
     
-    for(let i=0; i<4; i++) {
-        const r = new THREE.Mesh(roadGeo, roadMat);
+    for(let i=0; i<5; i++) {
+        let r = new THREE.Mesh(roadGeo, roadMat);
         r.rotation.x = -Math.PI/2;
         r.position.z = -i * 100;
         scene.add(r);
-        roadSegments.push(r);
+        road.push(r);
 
-        // Lines
-        const lineGeo = new THREE.PlaneGeometry(0.2, 5);
-        const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        for(let j=0; j<10; j++) {
-            const line = new THREE.Mesh(lineGeo, lineMat);
-            line.position.set(0, 0.02, (j*10) - 50);
-            r.add(line);
-        }
+        // Neon side rails for "Asphalt" look
+        let railGeo = new THREE.BoxGeometry(0.5, 0.5, 100);
+        let railMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        let lRail = new THREE.Mesh(railGeo, railMat);
+        lRail.position.set(-10, 0.25, 0);
+        r.add(lRail);
+        let rRail = lRail.clone();
+        rRail.position.x = 10;
+        r.add(rRail);
     }
 }
 
-function createCar() {
+function createProCar() {
     car = new THREE.Group();
-    // Body
-    const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.7, 4.5), new THREE.MeshStandardMaterial({ color: 0xff0000, metalness: 0.9, roughness: 0.1 }));
-    body.position.y = 0.5;
-    car.add(body);
     
-    // Windows/Cabin
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 2.5), new THREE.MeshStandardMaterial({ color: 0x050505 }));
-    cabin.position.set(0, 1, -0.2);
-    car.add(cabin);
+    // Detailed Body
+    const body = new THREE.Mesh(
+        new THREE.BoxGeometry(2.4, 0.6, 5),
+        new THREE.MeshStandardMaterial({ color: 0x990000, metalness: 0.9, roughness: 0.1 })
+    );
+    body.position.y = 0.6;
+    car.add(body);
 
-    // Nitro Flames (Cone)
-    const f1 = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.5, 8), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
-    f1.rotation.x = Math.PI/2; f1.position.set(0.6, 0.3, 2.5); f1.name="nitro"; f1.visible=false;
-    car.add(f1);
-    const f2 = f1.clone(); f2.position.x = -0.6; car.add(f2);
+    const glass = new THREE.Mesh(
+        new THREE.BoxGeometry(2, 0.5, 2.5),
+        new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1, roughness: 0 })
+    );
+    glass.position.set(0, 1.1, -0.3);
+    car.add(glass);
+
+    // Real Nitro Exhausts
+    const exhaustGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.5);
+    const exhaustMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    let ex1 = new THREE.Mesh(exhaustGeo, exhaustMat);
+    ex1.rotation.x = Math.PI/2; ex1.position.set(0.7, 0.4, 2.5);
+    car.add(ex1);
+    let ex2 = ex1.clone(); ex2.position.x = -0.7; car.add(ex2);
+
+    // Nitro Flame (Hidden)
+    const flameGeo = new THREE.ConeGeometry(0.3, 3, 8);
+    const flameMat = new THREE.MeshBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.8 });
+    let f = new THREE.Mesh(flameGeo, flameMat);
+    f.rotation.x = Math.PI/2; f.position.set(0, 0.4, 4); f.name = "nitro_flame"; f.visible = false;
+    car.add(f);
 
     scene.add(car);
 }
 
-// --- SOUND SYSTEM ---
-function startSound() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    engineOsc = audioCtx.createOscillator();
-    engineOsc.type = 'sawtooth';
-    const gain = audioCtx.createGain();
-    gain.gain.value = 0.05;
-    engineOsc.connect(gain).connect(audioCtx.destination);
-    engineOsc.start();
-}
-
-const keys = {};
-window.onkeydown = (e) => keys[e.code] = true;
-window.onkeyup = (e) => keys[e.code] = false;
-
-function startGame() {
+function startRace() {
     active = true;
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('hud').style.display = 'block';
-    startSound();
+    
+    // Engine Sound
+    audioCtx = new AudioContext();
+    osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    gain.gain.value = 0.05;
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
 }
+
+const input = {};
+window.onkeydown = (e) => input[e.code] = true;
+window.onkeyup = (e) => input[e.code] = false;
 
 function animate() {
     requestAnimationFrame(animate);
 
     if(active) {
-        // Controls
-        if(keys['KeyW']) targetSpeed = keys['ShiftLeft'] ? 2.5 : 1.3;
-        else targetSpeed = 0;
+        // Advanced Physics
+        let target = 0;
+        if(input['KeyW']) target = input['ShiftLeft'] ? 3.5 : 1.8;
+        speed = THREE.MathUtils.lerp(speed, target, 0.03);
         
-        speed = THREE.MathUtils.lerp(speed, targetSpeed, 0.03);
-        isNitro = keys['ShiftLeft'] && speed > 1;
-
-        // Nitro VFX & Shake
-        car.children.forEach(c => { if(c.name==="nitro") c.visible = isNitro; });
+        isNitro = input['ShiftLeft'] && speed > 1.5;
+        
+        // VFX Logic
+        car.getObjectByName("nitro_flame").visible = isNitro;
+        document.getElementById('overlay').className = isNitro ? 'nitro-active' : '';
+        
         if(isNitro) {
-            camera.position.x += (Math.random()-0.5)*0.1; 
-            camera.position.y += (Math.random()-0.5)*0.1;
+            camera.fov = THREE.MathUtils.lerp(camera.fov, 85, 0.1);
+            camera.position.x += (Math.random()-0.5)*0.15; // Camera Shake
+        } else {
+            camera.fov = THREE.MathUtils.lerp(camera.fov, 70, 0.1);
         }
+        camera.updateProjectionMatrix();
 
-        // Road movement logic
-        roadSegments.forEach(r => {
-            r.position.z += speed * 12;
-            if(r.position.z > 100) r.position.z -= 400;
+        // Steering & Drift Angle
+        if(input['KeyA']) { car.position.x -= 0.2; car.rotation.y = 0.2; }
+        else if(input['KeyD']) { car.position.x += 0.2; car.rotation.y = -0.2; }
+        else { car.rotation.y = THREE.MathUtils.lerp(car.rotation.y, 0, 0.1); }
+        
+        car.position.x = THREE.MathUtils.clamp(car.position.x, -8, 8);
+
+        // Road Loop
+        road.forEach(r => {
+            r.position.z += speed * 15;
+            if(r.position.z > 100) r.position.z -= 500;
         });
 
-        // Car Side Movement
-        if(keys['KeyA']) car.position.x -= 0.15;
-        if(keys['KeyD']) car.position.x += 0.15;
-        car.rotation.z = - (car.position.x * 0.05); // Lean effect
+        // Audio Pitch
+        if(osc) osc.frequency.value = 60 + (speed * 80);
 
-        // Audio Update
-        if(engineOsc) engineOsc.frequency.value = 50 + (speed * 100);
+        // UI
+        document.getElementById('num').innerText = Math.floor(speed * 120).toString().padStart(3, '0');
+        document.getElementById('nitro-bar').style.width = isNitro ? (30+Math.random()*20)+'%' : '100%';
 
-        // HUD Update
-        document.getElementById('kmh').innerText = Math.floor(speed * 160);
-        document.getElementById('nitro-fill').style.width = isNitro ? (Math.random()*20 + 30)+'%' : '100%';
-
-        // Camera Follow
-        camera.position.lerp(new THREE.Vector3(car.position.x * 0.5, 4 + speed, car.position.z + 10), 0.1);
-        camera.lookAt(car.position.x, 1, car.position.z - 5);
+        // Smooth Camera Follow
+        camera.position.lerp(new THREE.Vector3(car.position.x * 0.4, 4 + speed, car.position.z + 12), 0.1);
+        camera.lookAt(car.position.x, 1, car.position.z - 10);
     } else {
-        // Lobby Camera
-        camera.position.x = Math.sin(Date.now() * 0.0005) * 12;
-        camera.position.z = Math.cos(Date.now() * 0.0005) * 12;
-        camera.lookAt(0, 0, 0);
+        // Cinematic Lobby Cam
+        camera.position.set(Math.sin(Date.now()*0.001)*15, 5, Math.cos(Date.now()*0.001)*15);
+        camera.lookAt(0, 1, 0);
     }
 
     renderer.render(scene, camera);
@@ -193,7 +231,7 @@ function animate() {
 
 init();
 window.onresize = () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 };
