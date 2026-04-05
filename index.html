@@ -10,16 +10,25 @@
 <body>
     <div id="container"></div>
 
-    <!-- START SCREEN -->
+    <!-- START SCREEN + LOBBY ANIMATION -->
     <div id="start-screen" class="screen active">
         <div class="title-container">
             <h1>VELOCITY<br>RUSH</h1>
             <p class="subtitle">ASPHALT 8 • MORNING RUSH 250 KM/H</p>
             <div class="start-buttons">
-                <button onclick="startGame()" class="play-btn">PLAY</button>
+                <button onclick="startWithAnimation()" class="play-btn">PLAY</button>
                 <button onclick="showAbout()" class="secondary-btn">ABOUT</button>
             </div>
-            <div class="version">FIXED SPEED • 250 KM/H TOP • PALM TREES 🌴</div>
+            <div class="version">AG STUDIO • 250 KM/H • NO DASH LINES</div>
+        </div>
+    </div>
+
+    <!-- START ANIMATION (Asphalt 8 style lobby feel) -->
+    <div id="start-animation" class="screen">
+        <div class="animation-container">
+            <div class="ag-logo">AG STUDIO</div>
+            <div class="ready-text">GET READY...</div>
+            <div id="countdown" class="countdown">3</div>
         </div>
     </div>
 
@@ -28,7 +37,7 @@
         <div class="modal-content">
             <h2>ABOUT THE GAME</h2>
             <p class="about-text">Designed and Developed by Ayush Pandey JI</p>
-            <p class="about-sub">Speed problem fixed! Now top speed 250 km/h with faster acceleration. Morning weather 🌄, palm trees 🌴, car stays on road 🛣️.</p>
+            <p class="about-sub">AG STUDIO Presents<br>250 KM/H Asphalt 8 Style Racing with Morning Weather 🌄</p>
             <button onclick="hideAbout()" class="secondary-btn">BACK TO MENU</button>
         </div>
     </div>
