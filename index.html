@@ -3,75 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>High-End 3D Racing Game</title>
+    <title>VELOCITY RUSH • Asphalt Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
 </head>
 <body>
-    <div id="game-container"></div>
+    <!-- THREE.JS CONTAINER -->
+    <div id="container"></div>
 
-    <div id="ui-layer">
-        
-        <div id="start-screen" class="menu-screen">
-            <h1 class="game-title">ASPHALT <span>WEB</span></h1>
-            <button id="btn-play" class="action-btn">PLAY</button>
-            <div class="credits">Designed and Developed by Ayush Pandey JI</div>
-        </div>
-
-        <div id="hud" class="hidden">
-            <div class="speedometer">
-                <div class="speed-val" id="speed-val">0</div>
-                <div class="speed-unit">KM/H</div>
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="title-container">
+            <h1>VELOCITY<br>RUSH</h1>
+            <p class="subtitle">ASPHALT-STYLE 3D RACING</p>
+            <div class="start-buttons">
+                <button onclick="startGame()" class="play-btn">PLAY</button>
+                <button onclick="showAbout()" class="secondary-btn">ABOUT</button>
             </div>
-            <div class="nitro-container">
-                <div class="nitro-bar" id="nitro-bar"></div>
-                <div class="nitro-label">NITRO</div>
-            </div>
-            <button id="btn-pause" class="icon-btn">⏸</button>
-            
-            <div id="mobile-controls">
-                <button id="btn-left" class="mob-btn">◀</button>
-                <button id="btn-right" class="mob-btn">▶</button>
-                <button id="btn-nitro-mob" class="mob-btn nitro-mob">⚡</button>
-            </div>
+            <div class="version">HIGH-END THREE.JS • CONSOLE VISUALS</div>
         </div>
-
-        <div id="pause-screen" class="menu-screen hidden">
-            <h2>PAUSED</h2>
-            <button id="btn-resume" class="action-btn">RESUME</button>
-            
-            <div class="settings-panel">
-                <h3>SETTINGS</h3>
-                <div class="setting-row">
-                    <label>Graphics Quality</label>
-                    <select id="setting-graphics">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High (Bloom)</option>
-                    </select>
-                </div>
-                <div class="setting-row">
-                    <label>Steering Sensitivity</label>
-                    <input type="range" id="setting-sens" min="1" max="10" value="5">
-                </div>
-            </div>
-        </div>
-
-        <div id="game-over-screen" class="menu-screen hidden">
-            <h2 style="color: #ff3333;">CRASHED!</h2>
-            <div id="final-score">Score: 0</div>
-            <button id="btn-restart" class="action-btn">RESTART</button>
-        </div>
-
     </div>
 
-    <script type="module" src="script.js"></script>
+    <!-- ABOUT SCREEN -->
+    <div id="about-screen" class="screen">
+        <div class="modal-content">
+            <h2>ABOUT THE GAME</h2>
+            <p class="about-text">Designed and Developed by Ayush Pandey JI</p>
+            <p class="about-sub">A complete high-end 3D racing experience built from scratch with Three.js.<br>
+            Endless highway, realistic physics, nitro, traffic AI, and console-level visuals — all running directly in your browser.</p>
+            <button onclick="hideAbout()" class="secondary-btn">BACK TO MENU</button>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hud-container hidden">
+        <!-- Speedometer -->
+        <div id="speedometer">
+            <div class="speed-ring">
+                <div id="speed-needle" class="needle"></div>
+                <div class="speed-text">
+                    <span id="speed-value">000</span>
+                    <span class="unit">km/h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nitro Bar -->
+        <div id="nitro-hud">
+            <div class="nitro-label">NITRO</div>
+            <div class="nitro-bar-container">
+                <div id="nitro-bar" class="nitro-bar"></div>
+            </div>
+        </div>
+
+        <!-- Distance -->
+        <div id="distance-hud">
+            <span id="distance-value">0</span><span class="unit">m</span>
+        </div>
+
+        <!-- Mini-map style lane indicator -->
+        <div id="lane-indicator">
+            <div class="lane-bar">
+                <div id="player-dot" class="player-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAUSE MENU -->
+    <div id="pause-menu" class="screen hidden">
+        <div class="modal-content pause-modal">
+            <h2>PAUSED</h2>
+            <button onclick="resumeGame()" class="menu-btn">RESUME RACE</button>
+            <button onclick="showSettings()" class="menu-btn">SETTINGS</button>
+            <button onclick="exitToMenu()" class="menu-btn">EXIT TO MENU</button>
+        </div>
+    </div>
+
+    <!-- SETTINGS MENU -->
+    <div id="settings-menu" class="screen hidden">
+        <div class="modal-content">
+            <h2>SETTINGS</h2>
+            
+            <div class="setting-item">
+                <label>Graphics Quality</label>
+                <select id="graphics-select" onchange="applySettings()">
+                    <option value="high">HIGH (Console)</option>
+                    <option value="medium" selected>MEDIUM</option>
+                    <option value="low">LOW (Mobile)</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <label>Sound Effects</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sound-toggle" checked onchange="applySettings()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-item">
+                <label>Steering Sensitivity</label>
+                <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1" oninput="applySettings()">
+                <span id="sensitivity-value" class="value-display">1.0x</span>
+            </div>
+            
+            <button onclick="hideSettings()" class="secondary-btn">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobile-controls" class="mobile-controls hidden">
+        <div class="steering-zone">
+            <button id="left-btn" class="touch-btn">◀</button>
+            <button id="right-btn" class="touch-btn">▶</button>
+        </div>
+        
+        <div class="action-zone">
+            <button id="accel-btn" class="touch-btn accel">W</button>
+            <button id="brake-btn" class="touch-btn brake">S</button>
+            <button id="nitro-btn" class="touch-btn nitro">NITRO</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
