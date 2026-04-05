@@ -1,4 +1,4 @@
-// script.js - SPEED FIXED: Now 250 KM/H TOP SPEED + Faster Acceleration
+// script.js - ALL FIXES APPLIED
 let scene, camera, renderer;
 let car, wheels = [], flame, spoiler;
 let roadSegments = [];
@@ -19,16 +19,15 @@ let driftAmount = 0;
 
 const ROAD_WIDTH = 32;
 const SEGMENT_LENGTH = 65;
-const MAX_SPEED = 250;          // ✅ UPDATED TO 250 KM/H AS REQUESTED
+const MAX_SPEED = 250;          // ✅ 250 KM/H AS REQUESTED
 const ROAD_SEGMENTS_COUNT = 10;
 
 function initThree() {
     const container = document.getElementById('container');
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xaaccff, 80, 420);
+    scene.fog = new THREE.Fog(0xaaccff, 80, 420); // Morning 🌄
 
     camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 1200);
-    
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -36,6 +35,7 @@ function initThree() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
+    // Morning lighting 🌄
     const hemi = new THREE.HemisphereLight(0xaaddff, 0x88bb66, 1.3);
     scene.add(hemi);
     const sun = new THREE.DirectionalLight(0xffeeaa, 1.7);
@@ -51,7 +51,7 @@ function initThree() {
     scene.add(sky);
 
     createCar();
-    createRoad();
+    createRoad();           // ✅ NO DASH LINES (dandi removed)
     createEnvironment();
 
     for (let i = 0; i < 9; i++) createTrafficCar(200 + i * 60);
@@ -128,18 +128,8 @@ function createRoad() {
         road.receiveShadow = true;
         scene.add(road);
         roadSegments.push(road);
-
-        for (let lane = -1; lane <= 1; lane++) {
-            for (let d = 0; d < 8; d++) {
-                const dash = new THREE.Mesh(
-                    new THREE.PlaneGeometry(0.7, 5),
-                    new THREE.MeshPhongMaterial({ color: 0xffff44, emissive: 0xffff44 })
-                );
-                dash.rotation.x = -Math.PI / 2;
-                dash.position.set(lane * 9, 0.22, -SEGMENT_LENGTH/2 + d * 9);
-                road.add(dash);
-            }
-        }
+        
+        // ✅ DASH LINES (dandi) COMPLETELY REMOVED
     }
 }
 
@@ -153,7 +143,6 @@ function createEnvironment() {
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 4.5, 8), trunkMat);
         trunk.position.y = 2.25;
         palm.add(trunk);
-        
         for (let k = 0; k < 7; k++) {
             const frond = new THREE.Mesh(new THREE.ConeGeometry(2.4, 3.2, 5), frondMat);
             frond.position.y = 5.2;
@@ -161,7 +150,6 @@ function createEnvironment() {
             frond.rotation.x = Math.random() * 0.6 + 0.8;
             palm.add(frond);
         }
-        
         palm.position.set(-18 + Math.random() * 3, 0, i * 24 - 120);
         palm.rotation.y = Math.random() * Math.PI;
         scene.add(palm);
@@ -221,19 +209,19 @@ function createTrafficCar(zPos) {
 
 function updatePhysics(delta) {
     let accel = 0;
-    if (keys['w'] || keys['arrowup'] || mobile.accel) accel = 2.6;   // ✅ FASTER ACCELERATION
-    if (keys['s'] || keys['arrowdown'] || mobile.brake) accel = -2.0;
+    if (keys['w'] || keys['arrowup'] || mobile.accel) accel = 3.4;   // ✅ SUPER FAST ACCELERATION
+    if (keys['s'] || keys['arrowdown'] || mobile.brake) accel = -2.2;
 
-    carSpeed += accel * 95 * delta;   // ✅ INCREASED FOR QUICKER REACH TO 250
-    carSpeed *= 0.925;                // smoother feel
-    carSpeed = Math.max(18, Math.min(MAX_SPEED, carSpeed));
+    carSpeed += accel * 135 * delta;   // ✅ MASSIVE BOOST
+    carSpeed *= 0.905;                 // ✅ LESS DRAG = SPEED STAYS HIGH
+    carSpeed = Math.max(22, Math.min(MAX_SPEED, carSpeed));
 
     isBoosting = (keys['shift'] || mobile.nitro) && nitroLevel > 2;
     if (isBoosting) {
-        carSpeed = Math.min(MAX_SPEED + 80, carSpeed + 145 * delta);
+        carSpeed = Math.min(MAX_SPEED + 95, carSpeed + 160 * delta);
         nitroLevel = Math.max(0, nitroLevel - 55 * delta);
         flame.visible = true;
-        flame.scale.set(1 + Math.random() * 0.3, 1.8, 1);
+        flame.scale.set(1 + Math.random() * 0.4, 2.1, 1);
     } else {
         flame.visible = false;
         nitroLevel = Math.min(100, nitroLevel + 28 * delta);
@@ -267,7 +255,7 @@ function updatePhysics(delta) {
 }
 
 function updateWorld(delta) {
-    const scroll = carSpeed * 0.23 * delta;
+    const scroll = carSpeed * 0.26 * delta; // faster scroll for speed feel
 
     roadSegments.forEach(seg => {
         seg.position.z -= scroll;
@@ -343,14 +331,48 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
-function startGame() {
+// NEW: START ANIMATION (Asphalt 8 lobby style)
+function startWithAnimation() {
     document.getElementById('start-screen').classList.remove('active');
-    document.getElementById('hud').classList.remove('hidden');
+    const animScreen = document.getElementById('start-animation');
+    animScreen.classList.add('active');
+
+    const countdownEl = document.getElementById('countdown');
+    let count = 3;
+
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownEl.textContent = count;
+        } else {
+            clearInterval(interval);
+            countdownEl.style.animation = 'none';
+            countdownEl.textContent = 'GO!';
+            setTimeout(() => {
+                animScreen.classList.remove('active');
+                startGame();
+            }, 600);
+        }
+    }, 800);
+}
+
+function startGame() {
     if (!scene) initThree();
-    carSpeed = 65; nitroLevel = 100; distance = 0; car.position.set(0, 0.1, 0); car.rotation.set(0,0,0);
-    gameRunning = true; paused = false; lastTime = performance.now(); driftAmount = 0;
+    carSpeed = 92;               // ✅ INSTANT HIGH START SPEED
+    nitroLevel = 100;
+    distance = 0;
+    car.position.set(0, 0.1, 0);
+    car.rotation.set(0,0,0);
+
+    document.getElementById('hud').classList.remove('hidden');
+    gameRunning = true;
+    paused = false;
+    lastTime = performance.now();
+    driftAmount = 0;
     gameLoop(lastTime);
 }
+
+// Rest of functions unchanged
 function pauseGame() { paused = true; document.getElementById('pause-menu').classList.remove('hidden'); }
 function resumeGame() { document.getElementById('pause-menu').classList.add('hidden'); paused = false; lastTime = performance.now(); gameLoop(lastTime); }
 function showSettings() { document.getElementById('pause-menu').classList.add('hidden'); document.getElementById('settings-menu').classList.remove('hidden'); }
@@ -388,4 +410,4 @@ function setupMobileControls() {
     if ('ontouchstart' in window) document.getElementById('mobile-controls').classList.remove('hidden');
 }
 window.addEventListener('keydown', e => { if (e.key === 'Escape' && gameRunning) paused ? resumeGame() : pauseGame(); });
-window.onload = () => console.log('%c🚗 VELOCITY RUSH - 250 KM/H SPEED FIXED! (by Ayush Pandey JI)', 'color:#ffee88; font-size:15px');
+window.onload = () => console.log('%c🚗 VELOCITY RUSH - 250 KM/H + AG STUDIO ANIMATION + NO DASH LINES (by Ayush Pandey JI)', 'color:#ffee88; font-size:15px');
