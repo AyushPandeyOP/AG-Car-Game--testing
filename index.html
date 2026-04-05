@@ -10,16 +10,16 @@
 <body>
     <div id="container"></div>
 
-    <!-- START SCREEN (unchanged) -->
+    <!-- START SCREEN -->
     <div id="start-screen" class="screen active">
         <div class="title-container">
             <h1>VELOCITY<br>RUSH</h1>
-            <p class="subtitle">ASPHALT 8 • ARCADE EDITION</p>
+            <p class="subtitle">ASPHALT 8 • MORNING RUSH</p>
             <div class="start-buttons">
                 <button onclick="startGame()" class="play-btn">PLAY</button>
                 <button onclick="showAbout()" class="secondary-btn">ABOUT</button>
             </div>
-            <div class="version">HIGH-END THREE.JS • ASPHALT 8 PHYSICS</div>
+            <div class="version">FIXED STEERING • MORNING 🌄 • PALM TREES 🌴</div>
         </div>
     </div>
 
@@ -28,12 +28,12 @@
         <div class="modal-content">
             <h2>ABOUT THE GAME</h2>
             <p class="about-text">Designed and Developed by Ayush Pandey JI</p>
-            <p class="about-sub">Updated with Asphalt 8 style: advanced drift physics, old-school NPC cars, detailed highway, improved speed &amp; visuals.</p>
+            <p class="about-sub">Updated with Morning Weather 🌄, Palm Trees 🌴, Fixed Left/Right steering, Better car speed, Car stays on road, Improved graphics &amp; performance.</p>
             <button onclick="hideAbout()" class="secondary-btn">BACK TO MENU</button>
         </div>
     </div>
 
-    <!-- HUD - Improved Asphalt 8 style -->
+    <!-- HUD (same as last version) -->
     <div id="hud" class="hud-container hidden">
         <div id="speedometer">
             <div class="speed-ring">
@@ -44,24 +44,16 @@
                 </div>
             </div>
         </div>
-
-        <!-- Nitro Bar - Asphalt 8 neon glow -->
         <div id="nitro-hud">
             <div class="nitro-label">NITRO</div>
             <div class="nitro-bar-container">
                 <div id="nitro-bar" class="nitro-bar"></div>
             </div>
         </div>
-
-        <!-- Distance -->
         <div id="distance-hud">
             <span id="distance-value">0</span><span class="unit">m</span>
         </div>
-
-        <!-- DRIFT INDICATOR (new - Asphalt 8 style) -->
         <div id="drift-indicator" class="drift-text hidden">DRIFT</div>
-
-        <!-- Lane indicator -->
         <div id="lane-indicator">
             <div class="lane-bar">
                 <div id="player-dot" class="player-dot"></div>
@@ -69,7 +61,7 @@
         </div>
     </div>
 
-    <!-- PAUSE MENU (unchanged) -->
+    <!-- PAUSE MENU -->
     <div id="pause-menu" class="screen hidden">
         <div class="modal-content pause-modal">
             <h2>PAUSED</h2>
@@ -79,7 +71,7 @@
         </div>
     </div>
 
-    <!-- SETTINGS MENU (unchanged) -->
+    <!-- SETTINGS MENU -->
     <div id="settings-menu" class="screen hidden">
         <div class="modal-content">
             <h2>SETTINGS</h2>
@@ -100,14 +92,14 @@
             </div>
             <div class="setting-item">
                 <label>Steering Sensitivity</label>
-                <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1" oninput="applySettings()">
-                <span id="sensitivity-value" class="value-display">1.0x</span>
+                <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1.2" oninput="applySettings()">
+                <span id="sensitivity-value" class="value-display">1.2x</span>
             </div>
             <button onclick="hideSettings()" class="secondary-btn">CLOSE</button>
         </div>
     </div>
 
-    <!-- MOBILE CONTROLS (unchanged) -->
+    <!-- MOBILE CONTROLS -->
     <div id="mobile-controls" class="mobile-controls hidden">
         <div class="steering-zone">
             <button id="left-btn" class="touch-btn">◀</button>
