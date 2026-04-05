@@ -512,5 +512,5 @@ window.addEventListener('keydown', (e) => {
 
 // Auto start initialization
 window.onload = () => {
-    console.log('%c🚗 VELOCITY RUSH by Ayush Pandey JI - Ready for GitHub Pages!', 'color:#00ffcc; font-family:monospace');
+    console.log('%c VELOCITY RUSH by Ayush Pandey JI - Ready for GitHub Pages!', 'color:#00ffcc; font-family:monospace');
 };
