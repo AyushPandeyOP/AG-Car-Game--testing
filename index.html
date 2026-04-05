@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VELOCITY RUSH • Asphalt Edition</title>
+    <title>VELOCITY RUSH • Asphalt 8 Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- THREE.JS CONTAINER -->
     <div id="container"></div>
 
-    <!-- START SCREEN -->
+    <!-- START SCREEN (unchanged) -->
     <div id="start-screen" class="screen active">
         <div class="title-container">
             <h1>VELOCITY<br>RUSH</h1>
-            <p class="subtitle">ASPHALT-STYLE 3D RACING</p>
+            <p class="subtitle">ASPHALT 8 • ARCADE EDITION</p>
             <div class="start-buttons">
                 <button onclick="startGame()" class="play-btn">PLAY</button>
                 <button onclick="showAbout()" class="secondary-btn">ABOUT</button>
             </div>
-            <div class="version">HIGH-END THREE.JS • CONSOLE VISUALS</div>
+            <div class="version">HIGH-END THREE.JS • ASPHALT 8 PHYSICS</div>
         </div>
     </div>
 
@@ -29,15 +28,13 @@
         <div class="modal-content">
             <h2>ABOUT THE GAME</h2>
             <p class="about-text">Designed and Developed by Ayush Pandey JI</p>
-            <p class="about-sub">A complete high-end 3D racing experience built from scratch with Three.js.<br>
-            Endless highway, realistic physics, nitro, traffic AI, and console-level visuals — all running directly in your browser.</p>
+            <p class="about-sub">Updated with Asphalt 8 style: advanced drift physics, old-school NPC cars, detailed highway, improved speed &amp; visuals.</p>
             <button onclick="hideAbout()" class="secondary-btn">BACK TO MENU</button>
         </div>
     </div>
 
-    <!-- HUD -->
+    <!-- HUD - Improved Asphalt 8 style -->
     <div id="hud" class="hud-container hidden">
-        <!-- Speedometer -->
         <div id="speedometer">
             <div class="speed-ring">
                 <div id="speed-needle" class="needle"></div>
@@ -48,7 +45,7 @@
             </div>
         </div>
 
-        <!-- Nitro Bar -->
+        <!-- Nitro Bar - Asphalt 8 neon glow -->
         <div id="nitro-hud">
             <div class="nitro-label">NITRO</div>
             <div class="nitro-bar-container">
@@ -61,7 +58,10 @@
             <span id="distance-value">0</span><span class="unit">m</span>
         </div>
 
-        <!-- Mini-map style lane indicator -->
+        <!-- DRIFT INDICATOR (new - Asphalt 8 style) -->
+        <div id="drift-indicator" class="drift-text hidden">DRIFT</div>
+
+        <!-- Lane indicator -->
         <div id="lane-indicator">
             <div class="lane-bar">
                 <div id="player-dot" class="player-dot"></div>
@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <!-- PAUSE MENU -->
+    <!-- PAUSE MENU (unchanged) -->
     <div id="pause-menu" class="screen hidden">
         <div class="modal-content pause-modal">
             <h2>PAUSED</h2>
@@ -79,11 +79,10 @@
         </div>
     </div>
 
-    <!-- SETTINGS MENU -->
+    <!-- SETTINGS MENU (unchanged) -->
     <div id="settings-menu" class="screen hidden">
         <div class="modal-content">
             <h2>SETTINGS</h2>
-            
             <div class="setting-item">
                 <label>Graphics Quality</label>
                 <select id="graphics-select" onchange="applySettings()">
@@ -92,7 +91,6 @@
                     <option value="low">LOW (Mobile)</option>
                 </select>
             </div>
-            
             <div class="setting-item">
                 <label>Sound Effects</label>
                 <label class="toggle-switch">
@@ -100,24 +98,21 @@
                     <span class="slider"></span>
                 </label>
             </div>
-            
             <div class="setting-item">
                 <label>Steering Sensitivity</label>
                 <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1" oninput="applySettings()">
                 <span id="sensitivity-value" class="value-display">1.0x</span>
             </div>
-            
             <button onclick="hideSettings()" class="secondary-btn">CLOSE</button>
         </div>
     </div>
 
-    <!-- MOBILE CONTROLS -->
+    <!-- MOBILE CONTROLS (unchanged) -->
     <div id="mobile-controls" class="mobile-controls hidden">
         <div class="steering-zone">
             <button id="left-btn" class="touch-btn">◀</button>
             <button id="right-btn" class="touch-btn">▶</button>
         </div>
-        
         <div class="action-zone">
             <button id="accel-btn" class="touch-btn accel">W</button>
             <button id="brake-btn" class="touch-btn brake">S</button>
