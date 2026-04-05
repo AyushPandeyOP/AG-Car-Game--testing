@@ -1,0 +1,234 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000;
+}
+
+#game-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass through to 3D canvas if needed */
+}
+
+/* Menus */
+.menu-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: auto;
+    transition: opacity 0.3s ease;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+.game-title {
+    font-size: 4rem;
+    color: #fff;
+    font-style: italic;
+    letter-spacing: 5px;
+    margin-bottom: 40px;
+    text-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+}
+
+.game-title span {
+    color: #0088ff;
+}
+
+.action-btn {
+    padding: 15px 50px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(45deg, #0055ff, #00ccff);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+}
+
+.action-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(0, 150, 255, 0.8);
+}
+
+.credits {
+    position: absolute;
+    bottom: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Settings */
+.settings-panel {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    margin-top: 20px;
+}
+
+.settings-panel h3 {
+    color: #fff;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #ccc;
+}
+
+.setting-row select, .setting-row input {
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.speedometer {
+    position: absolute;
+    bottom: 30px;
+    right: 40px;
+    text-align: right;
+}
+
+.speed-val {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #fff;
+    font-family: monospace;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.speed-unit {
+    color: #00ccff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.nitro-container {
+    position: absolute;
+    bottom: 30px;
+    left: 40px;
+    width: 250px;
+}
+
+.nitro-label {
+    color: #ff0055;
+    font-weight: bold;
+    margin-top: 5px;
+    letter-spacing: 2px;
+}
+
+.nitro-bar {
+    height: 15px;
+    width: 100%;
+    background: linear-gradient(90deg, #ff0055, #ffaa00);
+    border-radius: 10px;
+    box-shadow: 0 0 15px #ff0055;
+    transition: width 0.1s linear;
+}
+
+#btn-pause {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    font-size: 1.5rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Mobile Controls */
+#mobile-controls {
+    display: none;
+    position: absolute;
+    bottom: 120px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.mob-btn {
+    pointer-events: auto;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.4);
+    color: white;
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.mob-btn:active {
+    background: rgba(255,255,255,0.5);
+}
+
+#btn-left { left: 20px; }
+#btn-right { left: 100px; }
+#btn-nitro-mob { 
+    right: 20px; 
+    border-color: #ff0055; 
+    color: #ff0055;
+    box-shadow: 0 0 10px #ff0055;
+}
+
+@media (max-width: 768px) {
+    #mobile-controls { display: block; }
+    .speedometer { bottom: 100px; right: 20px; }
+    .nitro-container { bottom: 100px; left: 20px; width: 150px; }
+    .game-title { font-size: 2.5rem; }
+}
