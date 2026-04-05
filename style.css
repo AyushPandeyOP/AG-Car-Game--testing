@@ -1,32 +1,24 @@
-/* style.css - Updated with Asphalt 8 neon glows & UI polish */
+/* style.css - Minor tweak for morning UI glow */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    overflow: hidden;
-    background: #000;
-    font-family: 'Arial', system-ui, sans-serif;
-    color: white;
-    touch-action: none;
-}
-
+body { overflow: hidden; background: #000; font-family: 'Arial', system-ui, sans-serif; color: white; touch-action: none; }
 #container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-/* SCREENS (same as before) */
 .screen {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at center, rgba(10,20,40,0.95), rgba(0,0,0,0.98));
+    background: radial-gradient(circle at center, rgba(10,25,45,0.95), rgba(0,0,0,0.98));
     display: none; align-items: center; justify-content: center;
     z-index: 100; flex-direction: column;
 }
 .screen.active { display: flex; }
+
 .title-container h1 {
     font-size: 4.5rem; font-weight: 900; letter-spacing: -4px;
-    background: linear-gradient(90deg, #00ddff, #ff00aa);
+    background: linear-gradient(90deg, #00ddff, #ffdd00);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 50px #00ffff;
+    text-shadow: 0 0 50px #ffee88;
 }
 .subtitle { font-size: 1.4rem; letter-spacing: 8px; opacity: 0.9; margin-bottom: 40px; }
 
-/* HUD - Asphalt 8 neon upgrade */
 .hud-container {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 50; padding: 20px;
@@ -36,50 +28,39 @@ body {
 
 #speedometer {
     width: 170px; height: 170px;
-    background: radial-gradient(circle, rgba(20,30,50,0.95), #000);
-    border: 8px solid #00ffff; border-radius: 50%;
-    box-shadow: 0 0 40px #00ffff, inset 0 0 40px #00ffff;
+    background: radial-gradient(circle, rgba(30,40,60,0.95), #000);
+    border: 8px solid #ffee88; border-radius: 50%;
+    box-shadow: 0 0 40px #ffee88, inset 0 0 40px #ffee88;
     position: relative;
 }
 .speed-ring {
     position: absolute; inset: 12px; border-radius: 50%;
-    border: 10px solid transparent; border-top-color: #ff00aa;
+    border: 10px solid transparent; border-top-color: #ff8800;
     animation: speedPulse 1.8s infinite;
 }
 .speed-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; font-size: 2.4rem; font-weight: 900; }
-.unit { font-size: 0.95rem; display: block; margin-top: 6px; color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+.unit { font-size: 0.95rem; display: block; margin-top: 6px; color: #ffee88; text-shadow: 0 0 10px #ffee88; }
 
-.nitro-bar-container {
-    width: 260px; height: 22px; background: #111; border: 3px solid #ffcc00;
-    border-radius: 999px; overflow: hidden; box-shadow: 0 0 25px #ffcc00;
-}
-.nitro-bar {
-    height: 100%; background: linear-gradient(90deg, #ffcc00, #ff0066);
-    box-shadow: 0 0 20px #ff00aa; transition: width 0.08s linear;
-}
+.nitro-bar-container { width: 260px; height: 22px; background: #111; border: 3px solid #ffcc00; border-radius: 999px; overflow: hidden; box-shadow: 0 0 25px #ffcc00; }
+.nitro-bar { height: 100%; background: linear-gradient(90deg, #ffcc00, #ff0066); box-shadow: 0 0 20px #ff00aa; transition: width 0.08s linear; }
 .nitro-label { color: #ffcc00; text-shadow: 0 0 12px #ffcc00; font-size: 1.1rem; letter-spacing: 4px; }
 
 #drift-indicator {
     position: absolute; top: 120px; left: 50%; transform: translateX(-50%);
     font-size: 2.8rem; font-weight: 900; letter-spacing: 6px;
-    color: #ff00aa; text-shadow: 0 0 30px #ff00aa, 0 0 50px #ff00aa;
+    color: #ff00aa; text-shadow: 0 0 30px #ff00aa;
     animation: driftFlash 0.6s infinite alternate;
     opacity: 0;
 }
 #drift-indicator.show { opacity: 1; }
 
-.drift-text { pointer-events: none; }
-
-/* Mobile controls same */
 .mobile-controls { position: absolute; bottom: 20px; left: 20px; right: 20px; z-index: 200; display: none; justify-content: space-between; }
-.touch-btn { pointer-events: all; width: 70px; height: 70px; background: rgba(255,255,255,0.15); border: 4px solid #00ffff; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px #00ffff; }
-.touch-btn:active { transform: scale(0.92); background: rgba(0,255,255,0.5); }
+.touch-btn { pointer-events: all; width: 70px; height: 70px; background: rgba(255,255,255,0.15); border: 4px solid #ffee88; border-radius: 50%; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px #ffee88; }
+.touch-btn:active { transform: scale(0.92); background: rgba(255,238,136,0.5); }
 .accel { border-color: #0f0; } .brake { border-color: #f33; } .nitro { border-color: #ff0; animation: nitroPulse 0.8s infinite; }
 
-/* MODALS same */
-.modal-content { background: rgba(10,15,35,0.96); padding: 40px; border-radius: 20px; border: 4px solid #00ddff; box-shadow: 0 0 70px #00ffff; max-width: 420px; text-align: center; }
+.modal-content { background: rgba(10,15,35,0.96); padding: 40px; border-radius: 20px; border: 4px solid #ffee88; box-shadow: 0 0 70px #ffee88; max-width: 420px; text-align: center; }
 
-/* ANIMATIONS */
 @keyframes speedPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 @keyframes nitroPulse { 0%,100% { box-shadow: 0 0 25px #ff0; } 50% { box-shadow: 0 0 45px #ff0; } }
 @keyframes driftFlash { from { opacity: 0.6; } to { opacity: 1; } }
