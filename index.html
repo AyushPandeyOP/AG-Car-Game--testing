@@ -1,251 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endless Car Racing Game</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #87CEEB;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .menu {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
-
-        .button {
-            background: #ff0000;
-            padding: 20px;
-            font-size: 20px;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin: 10px;
-        }
-
-        .button:hover {
-            background-color: #ff6666;
-        }
-
-        .ui {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: Arial, sans-serif;
-            z-index: 1;
-        }
-
-        #about {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            color: white;
-            font-size: 14px;
-        }
-
-        .nitro-bar {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: 10;
-        }
-
-        .nitro-bar-filled {
-            width: 0%;
-            height: 100%;
-            background: #ff0;
-            transition: width 0.1s ease;
-        }
-
-        .speedometer {
-            position: absolute;
-            top: 50px;
-            right: 30px;
-            font-size: 30px;
-            z-index: 10;
-        }
-
-        .about-text {
-            font-size: 14px;
-            color: #fff;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="menu" class="menu">
-        <h1>Endless Car Racing</h1>
-        <button id="startButton" class="button">Start Game</button>
-        <div id="about" class="about-text">
-            Designer and developed by Ayush Pandey JI
-        </div>
-    </div>
-
-    <div class="ui">
-        <div class="speedometer" id="speedometer">Speed: 0 km/h</div>
-        <div class="nitro-bar">
-            <div class="nitro-bar-filled" id="nitroBar"></div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon-es/0.19.0/cannon-es.js"></script>
-
-    <script>
-        const menu = document.getElementById('menu');
-        const startButton = document.getElementById('startButton');
-        const aboutText = document.getElementById('about');
-        const speedometer = document.getElementById('speedometer');
-        const nitroBar = document.getElementById('nitroBar');
-
-        let scene, camera, renderer, car, carModel, carSpeed = 0, nitroAmount = 100;
-        let roadSegments = [], isGameRunning = false;
-        let controls = { forward: false, backward: false, left: false, right: false, nitro: false };
-
-        let clock = new THREE.Clock();
-
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
-
-            camera.position.z = 5;
-
-            setupLighting();
-            loadCarModel();
-            createRoad();
-            setupControls();
-
-            window.addEventListener('resize', onWindowResize, false);
-        }
-
-        function setupLighting() {
-            const ambientLight = new THREE.AmbientLight(0xaaaaaa, 1);
-            scene.add(ambientLight);
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-            directionalLight.position.set(10, 10, 10);
-            scene.add(directionalLight);
-        }
-
-        function loadCarModel() {
-            const loader = new THREE.GLTFLoader();
-            loader.load('https://threejs.org/examples/models/gltf/Car.glb', (gltf) => {
-                carModel = gltf.scene;
-                carModel.scale.set(0.5, 0.5, 0.5);
-                car = carModel;
-                scene.add(car);
-            });
-        }
-
-        function createRoad() {
-            const roadGeometry = new THREE.BoxGeometry(10, 0.1, 100);
-            const roadMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
-            for (let i = 0; i < 5; i++) {
-                const road = new THREE.Mesh(roadGeometry, roadMaterial);
-                road.position.z = -i * 100;
-                scene.add(road);
-                roadSegments.push(road);
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High-End 3D Racing Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
             }
         }
-
-        function setupControls() {
-            window.addEventListener('keydown', (event) => {
-                if (event.code === 'ArrowUp' || event.code === 'KeyW') controls.forward = true;
-                if (event.code === 'ArrowDown' || event.code === 'KeyS') controls.backward = true;
-                if (event.code === 'ArrowLeft' || event.code === 'KeyA') controls.left = true;
-                if (event.code === 'ArrowRight' || event.code === 'KeyD') controls.right = true;
-                if (event.code === 'Space') controls.nitro = true;
-            });
-
-            window.addEventListener('keyup', (event) => {
-                if (event.code === 'ArrowUp' || event.code === 'KeyW') controls.forward = false;
-                if (event.code === 'ArrowDown' || event.code === 'KeyS') controls.backward = false;
-                if (event.code === 'ArrowLeft' || event.code === 'KeyA') controls.left = false;
-                if (event.code === 'ArrowRight' || event.code === 'KeyD') controls.right = false;
-                if (event.code === 'Space') controls.nitro = false;
-            });
-        }
-
-        function updateUI() {
-            speedometer.innerText = `Speed: ${Math.floor(carSpeed)} km/h`;
-            nitroBar.style.width = `${nitroAmount}%`;
-
-            if (controls.nitro && nitroAmount > 0) {
-                nitroAmount -= 0.5;
-                carSpeed += 5;  // Nitro speed boost
-            } else {
-                carSpeed -= 0.1; // Gradual speed loss
-                if (nitroAmount < 100) nitroAmount += 0.2;
-            }
-        }
-
-        function updateGame() {
-            if (!car) return;
-            const deltaTime = clock.getDelta();
-            if (controls.forward) carSpeed += 0.5;
-            if (controls.backward) carSpeed -= 0.5;
-
-            if (carSpeed < 0) carSpeed = 0;
-            if (carSpeed > 200) carSpeed = 200;
-
-            car.position.z -= carSpeed * deltaTime;
-
-            if (controls.left) car.rotation.y += 0.1;
-            if (controls.right) car.rotation.y -= 0.1;
-
-            roadSegments.forEach(road => {
-                if (road.position.z > 10) {
-                    road.position.z -= 100 * deltaTime;
-                }
-            });
-
-            updateUI();
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function startGame() {
-            menu.classList.add('hidden');
-            isGameRunning = true;
-            init();
-            animate();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            updateGame();
-            renderer.render(scene, camera);
-        }
-
-        startButton.addEventListener('click', startGame);
     </script>
-</body>
+</head>
+<body>
+    <div id="game-container"></div>
 
+    <div id="ui-layer">
+        
+        <div id="start-screen" class="menu-screen">
+            <h1 class="game-title">ASPHALT <span>WEB</span></h1>
+            <button id="btn-play" class="action-btn">PLAY</button>
+            <div class="credits">Designed and Developed by Ayush Pandey JI</div>
+        </div>
+
+        <div id="hud" class="hidden">
+            <div class="speedometer">
+                <div class="speed-val" id="speed-val">0</div>
+                <div class="speed-unit">KM/H</div>
+            </div>
+            <div class="nitro-container">
+                <div class="nitro-bar" id="nitro-bar"></div>
+                <div class="nitro-label">NITRO</div>
+            </div>
+            <button id="btn-pause" class="icon-btn">⏸</button>
+            
+            <div id="mobile-controls">
+                <button id="btn-left" class="mob-btn">◀</button>
+                <button id="btn-right" class="mob-btn">▶</button>
+                <button id="btn-nitro-mob" class="mob-btn nitro-mob">⚡</button>
+            </div>
+        </div>
+
+        <div id="pause-screen" class="menu-screen hidden">
+            <h2>PAUSED</h2>
+            <button id="btn-resume" class="action-btn">RESUME</button>
+            
+            <div class="settings-panel">
+                <h3>SETTINGS</h3>
+                <div class="setting-row">
+                    <label>Graphics Quality</label>
+                    <select id="setting-graphics">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High (Bloom)</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>Steering Sensitivity</label>
+                    <input type="range" id="setting-sens" min="1" max="10" value="5">
+                </div>
+            </div>
+        </div>
+
+        <div id="game-over-screen" class="menu-screen hidden">
+            <h2 style="color: #ff3333;">CRASHED!</h2>
+            <div id="final-score">Score: 0</div>
+            <button id="btn-restart" class="action-btn">RESTART</button>
+        </div>
+
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
 </html>
