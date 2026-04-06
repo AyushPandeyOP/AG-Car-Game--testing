@@ -1,4 +1,4 @@
-/* style.css - Updated with AG STUDIO animation + Asphalt 8 lobby vibe */
+/* style.css - NO CHANGES NEEDED (same as last version) */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { overflow: hidden; background: #000; font-family: 'Arial', system-ui, sans-serif; color: white; touch-action: none; }
 #container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
@@ -20,35 +20,16 @@ body { overflow: hidden; background: #000; font-family: 'Arial', system-ui, sans
 .subtitle { font-size: 1.4rem; letter-spacing: 8px; opacity: 0.9; margin-bottom: 40px; }
 
 /* AG STUDIO START ANIMATION */
-.animation-container {
-    text-align: center;
-    animation: lobbyPulse 2s infinite;
-}
+.animation-container { text-align: center; animation: lobbyPulse 2s infinite; }
 .ag-logo {
-    font-size: 5rem;
-    font-weight: 900;
-    letter-spacing: 12px;
+    font-size: 5rem; font-weight: 900; letter-spacing: 12px;
     background: linear-gradient(90deg, #ff00aa, #00ffff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 60px #00ffff;
-    margin-bottom: 30px;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 60px #00ffff; margin-bottom: 30px;
     animation: agPop 1.2s ease-out forwards;
 }
-.ready-text {
-    font-size: 2.2rem;
-    color: #ffee88;
-    margin-bottom: 20px;
-    opacity: 0;
-    animation: readyFade 1.5s 1.2s forwards;
-}
-.countdown {
-    font-size: 8rem;
-    font-weight: 900;
-    color: #ff00aa;
-    text-shadow: 0 0 40px #ff00aa;
-    animation: countPop 3s linear forwards;
-}
+.ready-text { font-size: 2.2rem; color: #ffee88; margin-bottom: 20px; opacity: 0; animation: readyFade 1.5s 1.2s forwards; }
+.countdown { font-size: 8rem; font-weight: 900; color: #ff00aa; text-shadow: 0 0 40px #ff00aa; animation: countPop 3s linear forwards; }
 
 /* HUD (same) */
 .hud-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; padding: 20px; display: flex; justify-content: space-between; font-family: 'Courier New', monospace; }
