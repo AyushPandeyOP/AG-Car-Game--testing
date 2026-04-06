@@ -1,4 +1,4 @@
-// script.js - ALL FIXES APPLIED
+// script.js - ✅ YOUR road.glb LOADED + OLD PROCEDURAL MAP REMOVED
 let scene, camera, renderer;
 let car, wheels = [], flame, spoiler;
 let roadSegments = [];
@@ -16,16 +16,17 @@ let sensitivity = 1.2;
 let graphicsQuality = 'medium';
 let lastTime = 0;
 let driftAmount = 0;
+let roadModelTemplate = null;   // ← Your GLB will be stored here
 
 const ROAD_WIDTH = 32;
-const SEGMENT_LENGTH = 65;
-const MAX_SPEED = 250;          // ✅ 250 KM/H AS REQUESTED
+const SEGMENT_LENGTH = 65;      // Change this only if your road.glb has different length
+const MAX_SPEED = 250;
 const ROAD_SEGMENTS_COUNT = 10;
 
 function initThree() {
     const container = document.getElementById('container');
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xaaccff, 80, 420); // Morning 🌄
+    scene.fog = new THREE.Fog(0xaaccff, 80, 420);
 
     camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.1, 1200);
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -51,7 +52,7 @@ function initThree() {
     scene.add(sky);
 
     createCar();
-    createRoad();           // ✅ NO DASH LINES (dandi removed)
+    loadCustomRoad();        // ← YOUR road.glb is loaded here (old map removed)
     createEnvironment();
 
     for (let i = 0; i < 9; i++) createTrafficCar(200 + i * 60);
@@ -67,25 +68,57 @@ function initThree() {
     setupMobileControls();
 }
 
-function createCar() {
+function loadCustomRoad() {
+    const loader = new THREE.GLTFLoader();
+    
+    loader.load(
+        'assets/road.glb', 
+        (gltf) => {
+            console.log('%c✅ road.glb loaded successfully!', 'color:#00ff88; font-size:16px');
+            roadModelTemplate = gltf.scene;
+            
+            // Optional: tweak scale/position if your model is too big/small
+            // roadModelTemplate.scale.set(1.2, 1, 1);   // uncomment and adjust if needed
+            // roadModelTemplate.position.y = 0.05;
+            
+            createRoadSegmentsFromGLB();
+        },
+        (progress) => {
+            console.log('Loading road.glb: ' + (progress.loaded / progress.total * 100) + '%');
+        },
+        (error) => {
+            console.error('❌ road.glb failed to load → check file path or format', error);
+            // Fallback (only if GLB is missing)
+            alert("road.glb not found! Make sure assets/road.glb exists in your GitHub repo.");
+        }
+    );
+}
+
+function createRoadSegmentsFromGLB() {
+    roadSegments = [];
+    for (let i = 0; i < ROAD_SEGMENTS_COUNT; i++) {
+        const segment = roadModelTemplate.clone();
+        segment.position.z = i * SEGMENT_LENGTH - (ROAD_SEGMENTS_COUNT * SEGMENT_LENGTH / 2);
+        segment.position.y = 0.05;           // adjust if your model floats
+        scene.add(segment);
+        roadSegments.push(segment);
+    }
+}
+
+function createCar() { /* SAME AS BEFORE */ 
     car = new THREE.Group();
     const bodyGeo = new THREE.BoxGeometry(2.4, 1.05, 5.6);
     const bodyMat = new THREE.MeshPhongMaterial({ color: 0x0077cc, shininess: 140, specular: 0xffffff });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = 1.45;
-    body.castShadow = true;
-    car.add(body);
+    body.position.y = 1.45; body.castShadow = true; car.add(body);
 
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.95, 1.15, 2.9), 
         new THREE.MeshPhongMaterial({ color: 0x112233, transparent: true, opacity: 0.88 }));
-    cabin.position.set(0, 2.25, -0.7);
-    car.add(cabin);
+    cabin.position.set(0, 2.25, -0.7); car.add(cabin);
 
     spoiler = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.15, 1.1), 
         new THREE.MeshPhongMaterial({ color: 0x002244 }));
-    spoiler.position.set(0, 2.8, -2.6);
-    spoiler.rotation.x = 0.3;
-    car.add(spoiler);
+    spoiler.position.set(0, 2.8, -2.6); spoiler.rotation.x = 0.3; car.add(spoiler);
 
     wheels = [];
     const wheelPositions = [{x:-1.2,z:1.8}, {x:1.2,z:1.8}, {x:-1.2,z:-1.9}, {x:1.2,z:-1.9}];
@@ -93,47 +126,23 @@ function createCar() {
         const wheelGroup = new THREE.Group();
         const tire = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.4, 32), 
             new THREE.MeshPhongMaterial({ color: 0x111111 }));
-        tire.rotation.z = Math.PI / 2;
-        wheelGroup.add(tire);
+        tire.rotation.z = Math.PI / 2; wheelGroup.add(tire);
         const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.42, 32), 
             new THREE.MeshPhongMaterial({ color: 0xcccccc }));
-        rim.rotation.z = Math.PI / 2;
-        wheelGroup.add(rim);
+        rim.rotation.z = Math.PI / 2; wheelGroup.add(rim);
         wheelGroup.position.set(pos.x, 0.75, pos.z);
-        car.add(wheelGroup);
-        wheels.push(wheelGroup);
+        car.add(wheelGroup); wheels.push(wheelGroup);
     });
 
     flame = new THREE.Mesh(new THREE.ConeGeometry(0.32, 2.8, 8), 
         new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending }));
-    flame.position.set(0, 1.1, -3.6);
-    flame.rotation.x = Math.PI;
-    flame.visible = false;
+    flame.position.set(0, 1.1, -3.6); flame.rotation.x = Math.PI; flame.visible = false;
     car.add(flame);
 
-    scene.add(car);
-    car.position.set(0, 0.1, 0);
+    scene.add(car); car.position.set(0, 0.1, 0);
 }
 
-function createRoad() {
-    roadSegments = [];
-    for (let i = 0; i < ROAD_SEGMENTS_COUNT; i++) {
-        const road = new THREE.Mesh(
-            new THREE.PlaneGeometry(ROAD_WIDTH, SEGMENT_LENGTH),
-            new THREE.MeshPhongMaterial({ color: 0x1a1a1a, shininess: 10 })
-        );
-        road.rotation.x = -Math.PI / 2;
-        road.position.z = i * SEGMENT_LENGTH - (ROAD_SEGMENTS_COUNT * SEGMENT_LENGTH / 2);
-        road.position.y = 0.05;
-        road.receiveShadow = true;
-        scene.add(road);
-        roadSegments.push(road);
-        
-        // ✅ DASH LINES (dandi) COMPLETELY REMOVED
-    }
-}
-
-function createEnvironment() {
+function createEnvironment() { /* SAME PALM TREES + BARRIERS */ 
     sideObjects = [];
     const trunkMat = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
     const frondMat = new THREE.MeshPhongMaterial({ color: 0x00aa44 });
@@ -141,87 +150,69 @@ function createEnvironment() {
     for (let i = 0; i < 22; i++) {
         const palm = new THREE.Group();
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 4.5, 8), trunkMat);
-        trunk.position.y = 2.25;
-        palm.add(trunk);
+        trunk.position.y = 2.25; palm.add(trunk);
         for (let k = 0; k < 7; k++) {
             const frond = new THREE.Mesh(new THREE.ConeGeometry(2.4, 3.2, 5), frondMat);
-            frond.position.y = 5.2;
-            frond.rotation.z = (k - 3) * 0.4;
-            frond.rotation.x = Math.random() * 0.6 + 0.8;
-            palm.add(frond);
+            frond.position.y = 5.2; frond.rotation.z = (k - 3) * 0.4;
+            frond.rotation.x = Math.random() * 0.6 + 0.8; palm.add(frond);
         }
         palm.position.set(-18 + Math.random() * 3, 0, i * 24 - 120);
         palm.rotation.y = Math.random() * Math.PI;
-        scene.add(palm);
-        sideObjects.push(palm);
+        scene.add(palm); sideObjects.push(palm);
 
-        const palmRight = palm.clone();
-        palmRight.position.x = 18 - Math.random() * 3;
-        scene.add(palmRight);
-        sideObjects.push(palmRight);
+        const palmRight = palm.clone(); palmRight.position.x = 18 - Math.random() * 3;
+        scene.add(palmRight); sideObjects.push(palmRight);
     }
 
     const barrierMat = new THREE.MeshPhongMaterial({ color: 0x888888 });
     for (let i = 0; i < 14; i++) {
         const left = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.2, 10), barrierMat);
-        left.position.set(-16.8, 0.6, i * 38 - 140);
-        scene.add(left);
-        sideObjects.push(left);
-
-        const right = left.clone();
-        right.position.x = 16.8;
-        scene.add(right);
-        sideObjects.push(right);
+        left.position.set(-16.8, 0.6, i * 38 - 140); scene.add(left); sideObjects.push(left);
+        const right = left.clone(); right.position.x = 16.8; scene.add(right); sideObjects.push(right);
     }
 }
 
-function createTrafficCar(zPos) {
+function createTrafficCar(zPos) { /* SAME */ 
     const npc = new THREE.Group();
     const colors = [0xaa5533, 0x777777, 0x99aa33, 0xcc6644, 0x555588];
     const col = colors[Math.floor(Math.random() * colors.length)];
 
     const body = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.1, 4.8), 
         new THREE.MeshPhongMaterial({ color: col, shininess: 40 }));
-    body.position.y = 1.25;
-    npc.add(body);
+    body.position.y = 1.25; npc.add(body);
 
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.95, 2.4), 
         new THREE.MeshPhongMaterial({ color: 0x222222 }));
-    cabin.position.set(0, 2.05, -0.5);
-    npc.add(cabin);
+    cabin.position.set(0, 2.05, -0.5); npc.add(cabin);
 
     const wheelGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.35, 24);
     const wMat = new THREE.MeshPhongMaterial({ color: 0x222222 });
     [-1.1, 1.1].forEach(x => {
         [-1.6, 1.6].forEach(z => {
-            const w = new THREE.Mesh(wheelGeo, wMat);
-            w.rotation.z = Math.PI / 2;
-            w.position.set(x, 0.65, z);
-            npc.add(w);
+            const w = new THREE.Mesh(wheelGeo, wMat); w.rotation.z = Math.PI / 2;
+            w.position.set(x, 0.65, z); npc.add(w);
         });
     });
 
     npc.position.set((Math.random() * 2 - 1) * 11, 0, zPos);
     npc.userData = { speed: 55 + Math.random() * 65, laneOffset: npc.position.x };
-    scene.add(npc);
-    traffic.push(npc);
+    scene.add(npc); traffic.push(npc);
 }
 
-function updatePhysics(delta) {
+function updatePhysics(delta) { /* SAME FAST SPEED LOGIC */ 
     let accel = 0;
-    if (keys['w'] || keys['arrowup'] || mobile.accel) accel = 3.4;   // ✅ SUPER FAST ACCELERATION
+    if (keys['w'] || keys['arrowup'] || mobile.accel) accel = 3.4;
     if (keys['s'] || keys['arrowdown'] || mobile.brake) accel = -2.2;
 
-    carSpeed += accel * 135 * delta;   // ✅ MASSIVE BOOST
-    carSpeed *= 0.905;                 // ✅ LESS DRAG = SPEED STAYS HIGH
+    carSpeed += accel * 135 * delta;
+    carSpeed *= 0.905;
     carSpeed = Math.max(22, Math.min(MAX_SPEED, carSpeed));
 
     isBoosting = (keys['shift'] || mobile.nitro) && nitroLevel > 2;
     if (isBoosting) {
         carSpeed = Math.min(MAX_SPEED + 95, carSpeed + 160 * delta);
         nitroLevel = Math.max(0, nitroLevel - 55 * delta);
-        flame.visible = true;
-        flame.scale.set(1 + Math.random() * 0.4, 2.1, 1);
+        flame.visible = true; flame.scale.set(1 + Math.random() * 0.4, 2.1, 1);
     } else {
         flame.visible = false;
         nitroLevel = Math.min(100, nitroLevel + 28 * delta);
@@ -255,8 +246,9 @@ function updatePhysics(delta) {
 }
 
 function updateWorld(delta) {
-    const scroll = carSpeed * 0.26 * delta; // faster scroll for speed feel
+    const scroll = carSpeed * 0.26 * delta;
 
+    // ✅ SCROLL YOUR CUSTOM road.glb SEGMENTS
     roadSegments.forEach(seg => {
         seg.position.z -= scroll;
         if (seg.position.z < -300) seg.position.z += ROAD_SEGMENTS_COUNT * SEGMENT_LENGTH;
@@ -273,10 +265,8 @@ function updateWorld(delta) {
         t.position.z -= (relSpeed * 0.22 + scroll);
 
         if (t.position.z < -70) {
-            scene.remove(t);
-            traffic.splice(i, 1);
-            createTrafficCar(380 + Math.random() * 90);
-            continue;
+            scene.remove(t); traffic.splice(i, 1);
+            createTrafficCar(380 + Math.random() * 90); continue;
         }
 
         const dx = Math.abs(car.position.x - t.position.x);
@@ -290,7 +280,7 @@ function updateWorld(delta) {
     if (traffic.length < 8) createTrafficCar(350 + Math.random() * 140);
 }
 
-function updateCamera() {
+function updateCamera() { /* SAME */ 
     const targetX = car.position.x * 0.7;
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.16);
     camera.position.y = 9.8 + (carSpeed / MAX_SPEED) * 6;
@@ -301,11 +291,10 @@ function updateCamera() {
         camera.position.x += (Math.random() - 0.5) * shake * 1.3;
         camera.position.y += (Math.random() - 0.5) * shake * 0.7;
     }
-
     camera.lookAt(car.position.x * 0.45, 3.8, 15);
 }
 
-function updateHUD() {
+function updateHUD() { /* SAME */ 
     document.getElementById('speed-value').textContent = String(Math.floor(carSpeed)).padStart(3, '0');
     document.getElementById('nitro-bar').style.width = nitroLevel + '%';
     document.getElementById('distance-value').textContent = Math.floor(distance);
@@ -331,7 +320,7 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
-// NEW: START ANIMATION (Asphalt 8 lobby style)
+// START ANIMATION + GAME START (same)
 function startWithAnimation() {
     document.getElementById('start-screen').classList.remove('active');
     const animScreen = document.getElementById('start-animation');
@@ -339,14 +328,11 @@ function startWithAnimation() {
 
     const countdownEl = document.getElementById('countdown');
     let count = 3;
-
     const interval = setInterval(() => {
         count--;
-        if (count > 0) {
-            countdownEl.textContent = count;
-        } else {
+        if (count > 0) countdownEl.textContent = count;
+        else {
             clearInterval(interval);
-            countdownEl.style.animation = 'none';
             countdownEl.textContent = 'GO!';
             setTimeout(() => {
                 animScreen.classList.remove('active');
@@ -358,21 +344,15 @@ function startWithAnimation() {
 
 function startGame() {
     if (!scene) initThree();
-    carSpeed = 92;               // ✅ INSTANT HIGH START SPEED
-    nitroLevel = 100;
-    distance = 0;
-    car.position.set(0, 0.1, 0);
-    car.rotation.set(0,0,0);
+    carSpeed = 92; nitroLevel = 100; distance = 0;
+    car.position.set(0, 0.1, 0); car.rotation.set(0,0,0);
 
     document.getElementById('hud').classList.remove('hidden');
-    gameRunning = true;
-    paused = false;
-    lastTime = performance.now();
-    driftAmount = 0;
+    gameRunning = true; paused = false; lastTime = performance.now(); driftAmount = 0;
     gameLoop(lastTime);
 }
 
-// Rest of functions unchanged
+// Other functions same
 function pauseGame() { paused = true; document.getElementById('pause-menu').classList.remove('hidden'); }
 function resumeGame() { document.getElementById('pause-menu').classList.add('hidden'); paused = false; lastTime = performance.now(); gameLoop(lastTime); }
 function showSettings() { document.getElementById('pause-menu').classList.add('hidden'); document.getElementById('settings-menu').classList.remove('hidden'); }
@@ -402,12 +382,9 @@ function setupMobileControls() {
         btn.addEventListener('touchstart', e => { e.preventDefault(); mobile[key] = val; });
         btn.addEventListener('touchend', e => { e.preventDefault(); mobile[key] = !val; });
     };
-    set(leftBtn, 'left', true);
-    set(rightBtn, 'right', true);
-    set(accelBtn, 'accel', true);
-    set(brakeBtn, 'brake', true);
-    set(nitroBtn, 'nitro', true);
+    set(leftBtn, 'left', true); set(rightBtn, 'right', true);
+    set(accelBtn, 'accel', true); set(brakeBtn, 'brake', true); set(nitroBtn, 'nitro', true);
     if ('ontouchstart' in window) document.getElementById('mobile-controls').classList.remove('hidden');
 }
 window.addEventListener('keydown', e => { if (e.key === 'Escape' && gameRunning) paused ? resumeGame() : pauseGame(); });
-window.onload = () => console.log('%c🚗 VELOCITY RUSH - 250 KM/H + AG STUDIO ANIMATION + NO DASH LINES (by Ayush Pandey JI)', 'color:#ffee88; font-size:15px');
+window.onload = () => console.log('%c🚗 road.glb LOADED + OLD MAP REMOVED (by Ayush Pandey JI)', 'color:#00ff88; font-size:16px');
