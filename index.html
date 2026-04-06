@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,7 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             align-items: center;
             justify-content: center;
@@ -127,7 +128,7 @@
             color: #00ffcc;
         }
         
-        /* MOBILE CONTROLS - OPTIMIZED */
+        /* MOBILE CONTROLS */
         .mobile-controls {
             position: absolute;
             bottom: 0; left: 0;
@@ -197,7 +198,6 @@
             width: 165px;
         }
         
-        /* ERROR MESSAGE */
         #error-msg {
             position: absolute;
             top: 50%; left: 50%;
@@ -209,6 +209,7 @@
             display: none;
             z-index: 999;
             font-size: 1.2rem;
+            text-align: center;
         }
         
         @media (max-width: 768px) {
@@ -218,7 +219,7 @@
     </style>
 </head>
 <body>
-    <!-- START SCREEN -->
+    <!-- START SCREEN (Lobby) -->
     <div id="start-screen" class="overlay active">
         <div class="content">
             <h1>VELOCITY<br>HIGHWAY</h1>
@@ -227,7 +228,7 @@
             <div style="margin-top: 60px; font-size: 1.1rem; opacity: 0.8;">
                 Designed and Developed by Ayush Pandey JI
             </div>
-            <div class="instructions" style="margin-top: 40px; font-size: 1rem; line-height: 1.6;">
+            <div style="margin-top: 40px; font-size: 1rem; line-height: 1.6; opacity: 0.7;">
                 W / ↑ — Accelerate<br>
                 S / ↓ — Brake<br>
                 A / ← — Steer Left<br>
@@ -256,7 +257,7 @@
         </div>
     </div>
 
-    <!-- PAUSE / SETTINGS / GAME OVER (same as before) -->
+    <!-- PAUSE MENU -->
     <div id="pause-menu" class="overlay">
         <div class="content" style="max-width:420px">
             <h2>PAUSED</h2>
@@ -266,13 +267,14 @@
         </div>
     </div>
 
+    <!-- SETTINGS MENU -->
     <div id="settings-menu" class="overlay">
         <div class="content" style="max-width:420px">
             <h2>SETTINGS</h2>
             <div style="margin:30px 0">
                 <label style="display:block;margin-bottom:10px">Graphics Quality</label>
                 <select id="graphics-select" style="padding:12px 20px;width:100%;border-radius:12px;background:#111;color:white;border:none">
-                    <option value="high">High</option>
+                    <option value="high" selected>High</option>
                     <option value="medium">Medium</option>
                     <option value="low">Low</option>
                 </select>
@@ -286,6 +288,7 @@
         </div>
     </div>
 
+    <!-- GAME OVER -->
     <div id="game-over-screen" class="overlay">
         <div class="content">
             <h2 style="color:#ff0044;font-size:4rem;margin-bottom:20px">CRASHED!</h2>
@@ -312,14 +315,13 @@
         </div>
     </div>
 
-    <!-- ERROR DISPLAY -->
-    <div id="error-msg">3D Engine failed to load.<br>Please refresh the page.</div>
+    <div id="error-msg">❌ 3D Engine failed to load.<br>Please refresh the page.</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
         // =============================================
-        // VELOCITY HIGHWAY - FULLY FIXED SINGLE FILE
-        // Everything embedded - just save as index.html
+        // VELOCITY HIGHWAY - FIXED & FULLY WORKING
+        // Single HTML file - just save and open
         // =============================================
         
         let scene, camera, renderer, clock;
@@ -427,7 +429,7 @@
         function createCar() {
             car = new THREE.Group();
             
-            // Body
+            // Body - Metallic Blue
             const body = new THREE.Mesh(
                 new THREE.BoxGeometry(CAR_WIDTH, 1.9, CAR_LENGTH),
                 new THREE.MeshPhongMaterial({ color: 0x0066ff, specular: 0xaaaaaa, shininess: 110 })
@@ -447,12 +449,17 @@
             // Wheels
             const wheelGeo = new THREE.CylinderGeometry(0.58, 0.58, 0.48, 32);
             const wheelMat = new THREE.MeshPhongMaterial({ color: 0x111111, shininess: 30 });
-            const positions = [{-2.1,2.4},{2.1,2.4},{-2.1,-2.6},{2.1,-2.6}];
+            const positions = [
+                {x: -2.1, z: 2.4},
+                {x: 2.1, z: 2.4},
+                {x: -2.1, z: -2.6},
+                {x: 2.1, z: -2.6}
+            ];
             wheels = [];
             positions.forEach(p => {
                 const w = new THREE.Mesh(wheelGeo, wheelMat);
                 w.rotation.z = Math.PI / 2;
-                w.position.set(p[0], 0.65, p[1]);
+                w.position.set(p.x, 0.65, p.z);
                 w.castShadow = true;
                 car.add(w);
                 wheels.push(w);
@@ -463,7 +470,6 @@
         }
 
         function createScenery() {
-            // Trees + mountains (same as before)
             for (let i = 0; i < 24; i++) {
                 const tree = createTree();
                 tree.position.set(-14 + Math.random()*5, 0, -140 + i*36);
@@ -493,7 +499,8 @@
 
         function createTrafficCar() {
             const g = new THREE.Group();
-            const color = [0xff2222,0x22cc22,0xffaa00,0x4444ff][Math.floor(Math.random()*4)];
+            const colors = [0xff2222, 0x22cc22, 0xffaa00, 0x4444ff];
+            const color = colors[Math.floor(Math.random()*colors.length)];
             const body = new THREE.Mesh(new THREE.BoxGeometry(3.6,1.7,7.2), new THREE.MeshPhongMaterial({color, shininess:40}));
             body.position.y = 1.25;
             g.add(body);
@@ -504,11 +511,8 @@
         }
 
         function updateCar(delta) {
-            // Acceleration
             if (keys['w'] || keys['ArrowUp']) velocity = Math.min(velocity + acceleration * delta, maxVelocity);
             if (keys['s'] || keys['ArrowDown']) velocity = Math.max(velocity - brakePower * delta * 1.9, 0);
             
-            // Nitro
             if ((keys['Shift'] || keys['shift']) && nitro > 0) {
-                nitroActive = true;
-                velocity = Math.min(velocity + 68 * del
+                nitroActive
