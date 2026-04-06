@@ -3,122 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VELOCITY RUSH • Asphalt 8 Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.134.0/examples/js/loaders/GLTFLoader.js"></script>
+    <title>VELOCITY HIGHWAY • 3D Racing</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;display=swap');
+    </style>
 </head>
 <body>
-    <div id="container"></div>
-
-    <!-- START SCREEN + LOBBY ANIMATION -->
-    <div id="start-screen" class="screen active">
-        <div class="title-container">
-            <h1>VELOCITY<br>RUSH</h1>
-            <p class="subtitle">ASPHALT 8 • MORNING RUSH 250 KM/H</p>
-            <div class="start-buttons">
-                <button onclick="startWithAnimation()" class="play-btn">PLAY</button>
-                <button onclick="showAbout()" class="secondary-btn">ABOUT</button>
+    <!-- START SCREEN -->
+    <div id="start-screen" class="overlay active">
+        <div class="content">
+            <h1>VELOCITY<br>HIGHWAY</h1>
+            <p class="subtitle">ENDLESS ASPHALT RACING</p>
+            <button id="play-btn" class="play-button">START RACE</button>
+            <div class="credits">
+                Designed and Developed by Ayush Pandey JI
             </div>
-            <div class="version">AG STUDIO • 250 KM/H • CUSTOM ROAD.GL B</div>
-        </div>
-    </div>
-
-    <!-- START ANIMATION -->
-    <div id="start-animation" class="screen">
-        <div class="animation-container">
-            <div class="ag-logo">AG STUDIO</div>
-            <div class="ready-text">GET READY...</div>
-            <div id="countdown" class="countdown">3</div>
-        </div>
-    </div>
-
-    <!-- ABOUT SCREEN -->
-    <div id="about-screen" class="screen">
-        <div class="modal-content">
-            <h2>ABOUT THE GAME</h2>
-            <p class="about-text">Designed and Developed by Ayush Pandey JI</p>
-            <p class="about-sub">AG STUDIO Presents<br>250 KM/H Asphalt 8 Style Racing with Morning Weather 🌄 + Your road.glb</p>
-            <button onclick="hideAbout()" class="secondary-btn">BACK TO MENU</button>
+            <div class="instructions">
+                <div>W / ↑ — Accelerate</div>
+                <div>S / ↓ — Brake</div>
+                <div>A / ← — Steer Left</div>
+                <div>D / → — Steer Right</div>
+                <div>SHIFT — NITRO BOOST</div>
+            </div>
         </div>
     </div>
 
     <!-- HUD -->
-    <div id="hud" class="hud-container hidden">
-        <div id="speedometer">
-            <div class="speed-ring">
-                <div id="speed-needle" class="needle"></div>
-                <div class="speed-text">
-                    <span id="speed-value">000</span>
-                    <span class="unit">km/h</span>
+    <div id="hud" class="hud">
+        <div class="top-left">
+            <div class="speed-container">
+                <div id="speed-value" class="speed-value">000</div>
+                <div class="speed-unit">KM/H</div>
+            </div>
+        </div>
+        
+        <div class="top-right">
+            <div class="nitro-container">
+                <div class="nitro-label">NITRO</div>
+                <div class="nitro-bar">
+                    <div id="nitro-fill" class="nitro-fill"></div>
                 </div>
             </div>
         </div>
-        <div id="nitro-hud">
-            <div class="nitro-label">NITRO</div>
-            <div class="nitro-bar-container">
-                <div id="nitro-bar" class="nitro-bar"></div>
-            </div>
-        </div>
-        <div id="distance-hud">
-            <span id="distance-value">0</span><span class="unit">m</span>
-        </div>
-        <div id="drift-indicator" class="drift-text hidden">DRIFT</div>
-        <div id="lane-indicator">
-            <div class="lane-bar">
-                <div id="player-dot" class="player-dot"></div>
-            </div>
+
+        <div class="bottom-center">
+            <div id="distance" class="distance">0.0 km</div>
         </div>
     </div>
 
     <!-- PAUSE MENU -->
-    <div id="pause-menu" class="screen hidden">
-        <div class="modal-content pause-modal">
+    <div id="pause-menu" class="overlay">
+        <div class="menu-content">
             <h2>PAUSED</h2>
-            <button onclick="resumeGame()" class="menu-btn">RESUME RACE</button>
-            <button onclick="showSettings()" class="menu-btn">SETTINGS</button>
-            <button onclick="exitToMenu()" class="menu-btn">EXIT TO MENU</button>
+            <button id="resume-btn" class="menu-button">RESUME RACE</button>
+            <button id="settings-btn" class="menu-button">SETTINGS</button>
+            <button id="quit-btn" class="menu-button">EXIT TO MENU</button>
         </div>
     </div>
 
     <!-- SETTINGS MENU -->
-    <div id="settings-menu" class="screen hidden">
-        <div class="modal-content">
+    <div id="settings-menu" class="overlay">
+        <div class="menu-content">
             <h2>SETTINGS</h2>
+            
             <div class="setting-item">
                 <label>Graphics Quality</label>
-                <select id="graphics-select" onchange="applySettings()">
-                    <option value="high">HIGH (Console)</option>
-                    <option value="medium" selected>MEDIUM</option>
-                    <option value="low">LOW (Mobile)</option>
+                <select id="graphics-select">
+                    <option value="high">High (Recommended)</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
                 </select>
             </div>
+            
             <div class="setting-item">
-                <label>Sound Effects</label>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="sound-toggle" checked onchange="applySettings()">
-                    <span class="slider"></span>
+                <label>Sound</label>
+                <label class="toggle">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="toggle-slider"></span>
                 </label>
             </div>
+            
             <div class="setting-item">
                 <label>Steering Sensitivity</label>
-                <input type="range" id="sensitivity-slider" min="0.5" max="2" step="0.1" value="1.2" oninput="applySettings()">
-                <span id="sensitivity-value" class="value-display">1.2x</span>
+                <input type="range" id="sensitivity-slider" min="0.5" max="2" value="1" step="0.1">
+                <span id="sensitivity-value" class="value-display">1.0x</span>
             </div>
-            <button onclick="hideSettings()" class="secondary-btn">CLOSE</button>
+            
+            <button id="back-settings-btn" class="menu-button">BACK</button>
         </div>
     </div>
 
-    <!-- MOBILE CONTROLS -->
-    <div id="mobile-controls" class="mobile-controls hidden">
-        <div class="steering-zone">
-            <button id="left-btn" class="touch-btn">◀</button>
-            <button id="right-btn" class="touch-btn">▶</button>
+    <!-- GAME OVER -->
+    <div id="game-over-screen" class="overlay">
+        <div class="content">
+            <h2 class="crash-text">CRASHED!</h2>
+            <div id="final-distance" class="final-score">DISTANCE: 0.0 km</div>
+            <div id="final-score" class="final-score">SCORE: 0000</div>
+            <button id="restart-btn" class="play-button">RESTART RACE</button>
+            <button id="menu-btn" class="menu-button">BACK TO MENU</button>
+            <div class="credits">Designed and Developed by Ayush Pandey JI</div>
         </div>
-        <div class="action-zone">
-            <button id="accel-btn" class="touch-btn accel">W</button>
-            <button id="brake-btn" class="touch-btn brake">S</button>
-            <button id="nitro-btn" class="touch-btn nitro">NITRO</button>
+    </div>
+
+    <!-- OPTIMIZED MOBILE CONTROLS -->
+    <div id="mobile-controls" class="mobile-controls">
+        <!-- LEFT: Virtual Joystick for smooth steering -->
+        <div id="joystick-container" class="joystick-container">
+            <div class="joystick-base">
+                <div id="joystick-knob" class="joystick-knob"></div>
+            </div>
+            <div class="joystick-label">STEER</div>
+        </div>
+
+        <!-- RIGHT: Large pedal-style buttons -->
+        <div class="pedals-container">
+            <button id="mobile-accel" class="pedal-button accel">GAS</button>
+            <button id="mobile-brake" class="pedal-button brake">BRAKE</button>
+            <button id="mobile-nitro" class="nitro-btn">NITRO</button>
         </div>
     </div>
 
