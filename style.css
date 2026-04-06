@@ -1,23 +1,77 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial;
+    background: #000;
+    color: white;
+}
 
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#000; overflow:hidden; font-family:'Orbitron', sans-serif; }
+canvas {
+    display: block;
+}
 
-#splash {
-    position: fixed; inset: 0; background: #0a0a1f;
-    display: flex; align-items: center; justify-content: center; flex-direction: column;
-    z-index: 9999;
+/* Start Screen */
+#startScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(#000, #111);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
 }
-#logo {
-    font-size: 8rem; font-weight: 900; letter-spacing: 20px;
-    background: linear-gradient(90deg, #00ddff, #ff00aa);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 80px #00ddff;
-    animation: logoPop 2.5s ease forwards;
+
+#startScreen button {
+    padding: 15px 30px;
+    font-size: 20px;
+    background: #00aaff;
+    border: none;
+    color: white;
+    border-radius: 10px;
 }
-#tagline {
-    margin-top: 40px; font-size: 1.6rem; letter-spacing: 12px; color: #00ddff;
-    opacity: 0; animation: fadeIn 2s 1.2s forwards;
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
 }
-@keyframes logoPop { 0%{transform:scale(0.2);opacity:0} 70%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
-@keyframes fadeIn { to { opacity: 0.95; } }
+
+#speed {
+    font-size: 24px;
+}
+
+#nitroBar {
+    width: 200px;
+    height: 10px;
+    background: #333;
+    margin-top: 10px;
+}
+
+#nitroFill {
+    width: 100%;
+    height: 100%;
+    background: cyan;
+}
+
+/* Mobile Controls */
+#mobileControls {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: 5;
+}
+
+#mobileControls button {
+    padding: 20px;
+    font-size: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
