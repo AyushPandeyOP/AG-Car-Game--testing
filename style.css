@@ -299,3 +299,39 @@ h2 { font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
 .nitro { background: rgba(255,68,0,0.2); border-color: #ff4400; color: #ffdd00; width: 130px; box-shadow: 0 0 30px #ff4400; }
 .nitro:active { background: rgba(255,68,0,0.5); }
 @media (max-width: 768px) { h1 { font-size: 3.2rem; } .play-button { padding: 14px 36px; font-size: 1.2rem; } .speed-value { font-size: 3rem; } }
+
+/* style.css - UNCHANGED (same as last version) */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #fff; touch-action: none; }
+#canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
+.screen.active { display: flex; }
+.title-container { text-align: center; }
+h1 { font-size: 4.5rem; font-weight: 900; letter-spacing: -4px; text-transform: uppercase; background: linear-gradient(90deg, #00ddff, #0099ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 40px rgba(0,221,255,0.6); }
+.neon { animation: neon-pulse 1.5s infinite alternate; }
+@keyframes neon-pulse { from { text-shadow: 0 0 20px #00ddff; } to { text-shadow: 0 0 40px #00ddff, 0 0 60px #00ddff; } }
+.subtitle { font-size: 1.4rem; margin: 10px 0 40px; opacity: 0.9; letter-spacing: 6px; }
+.play-button, .menu-button { background: transparent; color: #00ddff; border: 3px solid #00ddff; padding: 16px 48px; font-size: 1.4rem; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(0,221,255,0.5); }
+.play-button:hover, .menu-button:hover { background: #00ddff; color: #000; transform: scale(1.05); box-shadow: 0 0 40px rgba(0,221,255,0.9); }
+.credits { margin-top: 60px; font-size: 1rem; opacity: 0.7; letter-spacing: 2px; }
+.credits.small { font-size: 0.9rem; margin-top: 30px; }
+.hud { position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10; pointer-events: none; }
+.top-bar { display: flex; justify-content: space-between; align-items: flex-start; }
+.speedometer { background: rgba(0,0,0,0.7); border: 4px solid #00ddff; border-radius: 12px; padding: 10px 24px; text-align: center; min-width: 160px; box-shadow: 0 0 30px rgba(0,221,255,0.6); }
+.speed-value { font-size: 4.2rem; font-weight: 900; line-height: 1; color: #00ffcc; }
+.speed-unit { font-size: 1rem; letter-spacing: 2px; opacity: 0.8; }
+.nitro-wrapper { background: rgba(0,0,0,0.7); padding: 12px 20px; border-radius: 12px; border: 3px solid #ff4400; box-shadow: 0 0 25px rgba(255,68,0,0.5); }
+.nitro-label { font-size: 0.9rem; letter-spacing: 3px; text-align: center; margin-bottom: 6px; color: #ffaa77; }
+.nitro-bar { width: 220px; height: 18px; background: #222; border-radius: 999px; overflow: hidden; border: 2px solid #ff4400; }
+.nitro-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #ff4400, #ffdd00); box-shadow: 0 0 15px #ffdd00; transition: width 0.1s linear; }
+.distance { background: rgba(0,0,0,0.7); padding: 12px 24px; border-radius: 12px; font-size: 1.6rem; font-weight: bold; display: flex; align-items: center; gap: 8px; border: 3px solid #00ffcc; }
+.unit { font-size: 1rem; opacity: 0.7; }
+.menu-content { text-align: center; max-width: 420px; width: 90%; }
+h2 { font-size: 3rem; margin-bottom: 30px; text-transform: uppercase; }
+.crash-text { color: #ff3366; text-shadow: 0 0 30px #ff3366; }
+.mobile-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 200; pointer-events: auto; }
+.control-btn { background: rgba(0,221,255,0.15); color: #00ddff; border: 4px solid #00ddff; width: 110px; height: 110px; border-radius: 50%; font-size: 1.4rem; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(0,221,255,0.6); transition: all 0.1s ease; user-select: none; }
+.control-btn:active { transform: scale(0.9); background: rgba(0,221,255,0.4); }
+.nitro { background: rgba(255,68,0,0.2); border-color: #ff4400; color: #ffdd00; width: 130px; box-shadow: 0 0 30px #ff4400; }
+.nitro:active { background: rgba(255,68,0,0.5); }
+@media (max-width: 768px) { h1 { font-size: 3.2rem; } .play-button { padding: 14px 36px; font-size: 1.2rem; } .speed-value { font-size: 3rem; } }
