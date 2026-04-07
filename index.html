@@ -1,34 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Highway Racer</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Endless 3D Highway Racer - Built for Ayush Pandey JI">
+    <title>HIGHWAY RACER</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Three.js via CDN (r134 - stable, lightweight, perfect for GitHub Pages) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 </head>
 <body>
+    <!-- START SCREEN -->
+    <div id="start-screen" class="screen active">
+        <div class="title-container">
+            <h1>HIGHWAY<span class="neon">RACER</span></h1>
+            <p class="subtitle">ENDLESS 3D RACING</p>
+            <button id="play-btn" class="play-button">PLAY GAME</button>
+            <div class="credits">Designed and Developed by Ayush Pandey JI</div>
+        </div>
+    </div>
 
-<div id="startScreen">
-    <h1>HIGHWAY RACER</h1>
-    <button id="playBtn">PLAY</button>
-</div>
+    <!-- HUD -->
+    <div id="hud" class="hud hidden">
+        <div class="top-bar">
+            <!-- Speedometer -->
+            <div class="speedometer">
+                <div class="speed-value" id="speed">0</div>
+                <div class="speed-unit">KM/H</div>
+            </div>
 
-<div id="hud">
-    <div id="speed">0 KM/H</div>
-    <div id="nitroBar"><div id="nitroFill"></div></div>
-</div>
+            <!-- Nitro -->
+            <div class="nitro-wrapper">
+                <div class="nitro-label">NITRO</div>
+                <div class="nitro-bar">
+                    <div id="nitro-fill" class="nitro-fill"></div>
+                </div>
+            </div>
 
-<div id="mobileControls">
-    <button id="leftBtn">◀</button>
-    <button id="nitroBtn">⚡</button>
-    <button id="rightBtn">▶</button>
-</div>
+            <!-- Distance -->
+            <div class="distance">
+                DIST <span id="distance">0</span><span class="unit">km</span>
+            </div>
+        </div>
+    </div>
 
-<canvas id="game"></canvas>
+    <!-- PAUSE MENU -->
+    <div id="pause-menu" class="screen hidden">
+        <div class="menu-content">
+            <h2>PAUSED</h2>
+            <button id="resume-btn" class="menu-button">RESUME RACE</button>
+            <button id="settings-btn" class="menu-button">SETTINGS</button>
+            <button id="exit-btn" class="menu-button">EXIT TO MENU</button>
+        </div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.158/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- SETTINGS MENU -->
+    <div id="settings-menu" class="screen hidden">
+        <div class="menu-content">
+            <h2>SETTINGS</h2>
+            
+            <div class="setting-group">
+                <label>Graphics Quality</label>
+                <select id="graphics-select">
+                    <option value="low">Low (Best Performance)</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High (Full Effects)</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="sound-toggle" checked>
+                    Sound Effects
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <label>Steering Sensitivity</label>
+                <input type="range" id="sensitivity" min="0.5" max="2" step="0.1" value="1">
+                <span id="sensitivity-value" class="value-display">1.0x</span>
+            </div>
+            
+            <button id="close-settings" class="menu-button">BACK TO GAME</button>
+        </div>
+    </div>
 
-<script src="script.js"></script>
+    <!-- GAME OVER -->
+    <div id="game-over" class="screen hidden">
+        <div class="menu-content">
+            <h2 class="crash-text">CRASHED!</h2>
+            <p class="final-score">FINAL DISTANCE</p>
+            <div class="score-big" id="final-distance">0 km</div>
+            <button id="restart-btn" class="play-button">RESTART RACE</button>
+            <button id="menu-btn" class="menu-button">MAIN MENU</button>
+            <div class="credits small">Designed and Developed by Ayush Pandey JI</div>
+        </div>
+    </div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobile-controls" class="mobile-controls hidden">
+        <button id="mobile-left" class="control-btn">◀ LEFT</button>
+        <button id="mobile-nitro" class="control-btn nitro">NITRO ⚡</button>
+        <button id="mobile-right" class="control-btn">RIGHT ▶</button>
+    </div>
+
+    <!-- GAME CANVAS -->
+    <canvas id="canvas"></canvas>
+
+    <script src="script.js"></script>
 </body>
 </html>
