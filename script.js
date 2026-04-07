@@ -1,9 +1,8 @@
-// script.js - UPDATED VERSION (Ayush Pandey JI fixes applied)
-// ✅ Mobile bottom buttons FIXED (no longer opposite)
-// ✅ Traffic now sparse & realistic (not full road pack)
-// ✅ Car speed slowed down to feel natural + engine sound
-// ✅ Nitro whoosh + crash explosion sound
-// ✅ Restart button already perfect + sound toggle works
+// script.js - UPDATED v3 (Ayush Pandey JI fixes applied)
+// ✅ Speed badhaya + steering smoother & stronger
+// ✅ Map road ab pehle se dikhega (more road ahead at start)
+// ✅ Gadi ka tilt kam kiya → ab accident kam hoga (turning feels natural)
+// ✅ Camera angle piche liya (better chase view)
 
 let scene, camera, renderer, clock;
 let carGroup, wheelMeshes = [], flameMesh;
@@ -28,18 +27,18 @@ let nitroSoundTime = 0;
 const ROAD_WIDTH = 22;
 const SEGMENT_LENGTH = 65;
 const NUM_SEGMENTS = 7;
-const MAX_SPEED = 135;           // Slowed down for realistic feel
-const TURN_SPEED_BASE = 42;
+const MAX_SPEED = 168;           // 🔥 SPEED BADHAYA (realistic but fast feel)
+const TURN_SPEED_BASE = 52;      // Direction response better
 
 // Core initialization
 function initThree() {
     clock = new THREE.Clock();
     
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x88aaff, 8, 260);
+    scene.fog = new THREE.Fog(0x88aaff, 8, 280);
     scene.background = new THREE.Color(0x88aaff);
     
-    camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 400);
+    camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.1, 420);
     
     renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('canvas'),
@@ -56,30 +55,24 @@ function initThree() {
     sun.position.set(25, 45, 15);
     scene.add(sun);
 
-    // === AUDIO SYSTEM ===
+    // Audio
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         engineOscillator = audioContext.createOscillator();
         engineOscillator.type = 'sawtooth';
         engineOscillator.frequency.setValueAtTime(65, audioContext.currentTime);
-        
         engineGain = audioContext.createGain();
         engineGain.gain.value = 0;
-        
         const filter = audioContext.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.value = 900;
-        
-        engineOscillator.connect(filter);
-        filter.connect(engineGain);
-        engineGain.connect(audioContext.destination);
+        engineOscillator.connect(filter).connect(engineGain).connect(audioContext.destination);
         engineOscillator.start();
-    } catch(e) { console.log('🔇 Audio not available'); }
+    } catch(e) {}
 
-    console.log('%c🚗 HIGHWAY RACER v2 (fixed + sounds) ready', 'color:#00ddff; font-weight:bold');
+    console.log('%c🚗 HIGHWAY RACER v3 - Speed + Camera + Map fixed!', 'color:#00ddff; font-weight:bold');
 }
 
-// Create player car (unchanged)
 function createPlayerCar() {
     carGroup = new THREE.Group();
     const bodyGeo = new THREE.BoxGeometry(4.2, 1.6, 9);
@@ -124,7 +117,7 @@ function createPlayerCar() {
     scene.add(carGroup);
 }
 
-// Highway (unchanged)
+// Highway - ab map pehle se load (more road ahead)
 function createHighway() {
     roadSegments = [];
     const roadMat = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
@@ -155,13 +148,13 @@ function createHighway() {
             }
         });
 
-        segment.position.z = i * SEGMENT_LENGTH - (NUM_SEGMENTS * SEGMENT_LENGTH * 0.5);
+        // 🔥 MAP PEHLE LOAD - more road visible ahead
+        segment.position.z = i * SEGMENT_LENGTH - (NUM_SEGMENTS * SEGMENT_LENGTH * 0.28);
         scene.add(segment);
         roadSegments.push(segment);
     }
 }
 
-// Spawn traffic - now sparser
 function spawnTrafficCar() {
     const group = new THREE.Group();
     const colors = [0xff2222, 0x22aa22, 0xdddd22, 0x2222ff, 0xff8800];
@@ -176,15 +169,15 @@ function spawnTrafficCar() {
 
     const lanes = [-7.5, 0, 7.5];
     group.position.x = lanes[Math.floor(Math.random()*3)];
-    group.position.z = 55 + Math.random() * 90;   // more spacing
-    group.userData = { speed: 55 + Math.random() * 35, alive: true };
+    group.position.z = 65 + Math.random() * 110;   // even more spacing
+    group.userData = { speed: 52 + Math.random() * 38, alive: true };
     
     scene.add(group);
     trafficCars.push(group);
 }
 
 function updateHighway(delta) {
-    const moveDist = currentSpeed * delta * 1.35;
+    const moveDist = currentSpeed * delta * 1.38;
     roadSegments.forEach(s => s.position.z -= moveDist);
     
     let minSeg = roadSegments[0];
@@ -200,21 +193,20 @@ function updateHighway(delta) {
 }
 
 function updateTraffic(delta) {
-    const worldMove = currentSpeed * delta * 1.35;
+    const worldMove = currentSpeed * delta * 1.38;
     
     for (let i = trafficCars.length - 1; i >= 0; i--) {
         const car = trafficCars[i];
-        const relativeMove = (currentSpeed - car.userData.speed) * delta * 0.9 + worldMove;
+        const relativeMove = (currentSpeed - car.userData.speed) * delta * 0.92 + worldMove;
         car.position.z -= relativeMove;
         
-        if (car.position.z < -25) {
+        if (car.position.z < -28) {
             scene.remove(car);
             trafficCars.splice(i, 1);
         }
     }
     
-    // Sparser traffic (not full road pack)
-    if (Date.now() - lastSpawnTime > 1250 && trafficCars.length < 5) {
+    if (Date.now() - lastSpawnTime > 1100 && trafficCars.length < 5) {
         spawnTrafficCar();
         lastSpawnTime = Date.now();
     }
@@ -225,7 +217,7 @@ function checkCollisions() {
         const t = trafficCars[i];
         const dx = Math.abs(carGroup.position.x - t.position.x);
         const dz = Math.abs(t.position.z);
-        if (dx < 4.2 && dz < 6.8) {
+        if (dx < 4.1 && dz < 7.2) {   // slightly bigger safe zone
             triggerCrash();
             return;
         }
@@ -250,7 +242,6 @@ function playNitroSound() {
 
 function playCrashSound() {
     if (!audioContext || !soundEnabled) return;
-    // Noise + boom
     const bufferSize = Math.floor(audioContext.sampleRate * 1.2);
     const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
     const output = buffer.getChannelData(0);
@@ -278,13 +269,10 @@ function playCrashSound() {
 }
 
 function updateEngineSound() {
-    if (!engineOscillator || !soundEnabled) {
-        if (engineGain) engineGain.gain.value = 0;
-        return;
-    }
-    const pitch = 65 + (currentSpeed / MAX_SPEED) * 95;
+    if (!engineOscillator || !soundEnabled) return;
+    const pitch = 65 + (currentSpeed / MAX_SPEED) * 98;
     engineOscillator.frequency.setValueAtTime(pitch, audioContext.currentTime);
-    const vol = 0.12 + (currentSpeed / MAX_SPEED) * 0.28;
+    const vol = 0.13 + (currentSpeed / MAX_SPEED) * 0.29;
     engineGain.gain.value = vol;
 }
 
@@ -298,66 +286,65 @@ function triggerCrash() {
     flameMesh.visible = false;
 }
 
-// Main update
 function updateGame(delta) {
     if (gameState !== 'playing') return;
     
-    // Steering (keyboard normal + mobile FIXED - no longer opposite)
+    // Steering (smoother + stronger direction)
     let steer = 0;
     if (keys['a'] || keys['arrowleft']) steer -= 1;
     if (keys['d'] || keys['arrowright']) steer += 1;
-    if (isLeftPressed) steer += 1;   // ← mobile inverted to fix opposite issue
-    if (isRightPressed) steer -= 1;  // ← mobile inverted
+    if (isLeftPressed) steer += 1;
+    if (isRightPressed) steer -= 1;
     
-    const turnAmount = steer * TURN_SPEED_BASE * sensitivity * delta * (0.6 + currentSpeed / MAX_SPEED);
+    // Improved turning feel
+    const turnAmount = steer * TURN_SPEED_BASE * sensitivity * delta * (0.58 + currentSpeed / MAX_SPEED * 0.75);
     carGroup.position.x += turnAmount;
     carGroup.position.x = Math.max(-9.5, Math.min(9.5, carGroup.position.x));
-    carGroup.rotation.y = steer * -0.18;
+    
+    // Gadi ka tilt kam kiya (no more dramatic leaning)
+    carGroup.rotation.y = steer * -0.115;
     
     // Speed & Nitro
     let targetSpeed = MAX_SPEED;
     let nitroActive = false;
     
     if (isNitroPressed && nitroLevel > 0) {
-        targetSpeed = MAX_SPEED * 1.65;
-        nitroLevel = Math.max(0, nitroLevel - 85 * delta);
+        targetSpeed = MAX_SPEED * 1.68;
+        nitroLevel = Math.max(0, nitroLevel - 88 * delta);
         flameMesh.visible = true;
-        flameMesh.scale.y = 1 + Math.sin(Date.now() * 0.02) * 0.3;
+        flameMesh.scale.y = 1 + Math.sin(Date.now() * 0.022) * 0.35;
         nitroActive = true;
-        
-        // Nitro whoosh sound (throttled)
-        if (Date.now() - nitroSoundTime > 700) {
+        if (Date.now() - nitroSoundTime > 650) {
             playNitroSound();
             nitroSoundTime = Date.now();
         }
     } else {
         flameMesh.visible = false;
-        nitroLevel = Math.min(100, nitroLevel + 32 * delta);
+        nitroLevel = Math.min(100, nitroLevel + 34 * delta);
     }
     
-    // Acceleration feel (smooth & realistic)
     if (keys['w'] || keys['arrowup']) {
-        currentSpeed = currentSpeed * 0.86 + targetSpeed * 0.14;
+        currentSpeed = currentSpeed * 0.84 + targetSpeed * 0.16;
     } else if (keys['s'] || keys['arrowdown']) {
-        currentSpeed *= 0.72;
+        currentSpeed *= 0.68;
     } else {
-        currentSpeed = currentSpeed * 0.91 + targetSpeed * 0.09;
+        currentSpeed = currentSpeed * 0.89 + targetSpeed * 0.11;
     }
     
-    currentSpeed = Math.max(12, Math.min(currentSpeed, targetSpeed + 15));
+    currentSpeed = Math.max(18, Math.min(currentSpeed, targetSpeed + 18));
     
-    // Wheel animation
-    const roll = currentSpeed * delta * 0.135;
+    // Wheels
+    const roll = currentSpeed * delta * 0.14;
     wheelMeshes.forEach(w => w.rotation.x -= roll);
     if (wheelMeshes.length >= 2) {
-        wheelMeshes[0].rotation.y = steer * 0.65;
-        wheelMeshes[1].rotation.y = steer * 0.65;
+        wheelMeshes[0].rotation.y = steer * 0.68;
+        wheelMeshes[1].rotation.y = steer * 0.68;
     }
     
     updateHighway(delta);
     updateTraffic(delta);
     checkCollisions();
-    distanceTraveled += (currentSpeed * delta) / 4.8;
+    distanceTraveled += (currentSpeed * delta) / 4.6;
     
     updateEngineSound();
     updateHUD();
@@ -370,11 +357,11 @@ function updateHUD() {
 }
 
 function updateCamera() {
-    const idealX = carGroup.position.x * 0.4;
-    camera.position.x = camera.position.x * 0.85 + idealX * 0.15;
-    camera.position.y = 7.5;
-    camera.position.z = -19;
-    camera.lookAt(carGroup.position.x * 0.6, 2.2, 12);
+    const idealX = carGroup.position.x * 0.38;
+    camera.position.x = camera.position.x * 0.86 + idealX * 0.14;
+    camera.position.y = 8.2;
+    camera.position.z = -29;           // 🔥 CAMERA PICHE
+    camera.lookAt(carGroup.position.x * 0.45, 2.4, 22);  // better forward view
 }
 
 function animate() {
@@ -389,7 +376,6 @@ function setupControls() {
     window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if (e.key === 'Escape' && gameState === 'playing') togglePause(); });
     window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
-    // Mobile controls (now fixed)
     const leftBtn = document.getElementById('mobile-left');
     const rightBtn = document.getElementById('mobile-right');
     const nitroBtn = document.getElementById('mobile-nitro');
@@ -406,7 +392,6 @@ function setupControls() {
     nitroBtn.addEventListener('pointerup', () => isNitroPressed = false);
     nitroBtn.addEventListener('pointerleave', () => isNitroPressed = false);
 
-    // UI
     document.getElementById('play-btn').addEventListener('click', startGame);
     document.getElementById('resume-btn').addEventListener('click', resumeGame);
     document.getElementById('settings-btn').addEventListener('click', showSettings);
@@ -415,10 +400,7 @@ function setupControls() {
     document.getElementById('restart-btn').addEventListener('click', restartGame);
     document.getElementById('menu-btn').addEventListener('click', exitToMenu);
 
-    // Settings
-    document.getElementById('graphics-select').addEventListener('change', e => {
-        graphicsQuality = e.target.value;
-    });
+    document.getElementById('graphics-select').addEventListener('change', e => { graphicsQuality = e.target.value; });
     
     const sensSlider = document.getElementById('sensitivity');
     sensSlider.addEventListener('input', () => {
@@ -426,10 +408,8 @@ function setupControls() {
         document.getElementById('sensitivity-value').textContent = sensitivity.toFixed(1) + 'x';
     });
 
-    // Sound toggle (now working)
-    const soundToggle = document.getElementById('sound-toggle');
-    soundToggle.addEventListener('change', () => {
-        soundEnabled = soundToggle.checked;
+    document.getElementById('sound-toggle').addEventListener('change', e => {
+        soundEnabled = e.target.checked;
     });
 
     window.addEventListener('resize', () => {
@@ -489,7 +469,7 @@ function restartGame() {
 }
 
 function resetGameVariables() {
-    currentSpeed = 38;
+    currentSpeed = 52;               // start faster
     nitroLevel = 100;
     distanceTraveled = 0;
     carGroup.position.x = 0;
@@ -498,7 +478,7 @@ function resetGameVariables() {
     trafficCars = [];
     lastSpawnTime = Date.now();
     nitroSoundTime = 0;
-    for (let i = 0; i < 4; i++) spawnTrafficCar();   // start with fewer cars
+    for (let i = 0; i < 4; i++) spawnTrafficCar();
 }
 
 window.onload = function () {
@@ -508,5 +488,5 @@ window.onload = function () {
     setupControls();
     animate();
     
-    console.log('%c✅ All fixes applied - Mobile fixed, traffic sparse, realistic speed + sounds!', 'color:#00ff88; font-weight:bold');
+    console.log('%c✅ Sab fixes lag gaye bhai! Speed ↑, Camera piche, Map pehle, Turning smooth!', 'color:#00ff88; font-weight:bold');
 };
