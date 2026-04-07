@@ -6,7 +6,6 @@
     <meta name="description" content="Endless 3D Highway Racer - Built for Ayush Pandey JI">
     <title>HIGHWAY RACER</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Three.js via CDN (r134 - stable, lightweight, perfect for GitHub Pages) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 </head>
 <body>
@@ -23,13 +22,11 @@
     <!-- HUD -->
     <div id="hud" class="hud hidden">
         <div class="top-bar">
-            <!-- Speedometer -->
             <div class="speedometer">
                 <div class="speed-value" id="speed">0</div>
                 <div class="speed-unit">KM/H</div>
             </div>
 
-            <!-- Nitro -->
             <div class="nitro-wrapper">
                 <div class="nitro-label">NITRO</div>
                 <div class="nitro-bar">
@@ -37,7 +34,6 @@
                 </div>
             </div>
 
-            <!-- Distance -->
             <div class="distance">
                 DIST <span id="distance">0</span><span class="unit">km</span>
             </div>
@@ -71,7 +67,7 @@
             <div class="setting-group">
                 <label>
                     <input type="checkbox" id="sound-toggle" checked>
-                    Sound Effects
+                    Sound Effects ON
                 </label>
             </div>
             
@@ -100,13 +96,13 @@
     <!-- MOBILE CONTROLS -->
     <div id="mobile-controls" class="mobile-controls hidden">
         <button id="mobile-left" class="control-btn">◀ LEFT</button>
+        <button id="mobile-accel" class="control-btn accel">▲ ACCEL</button>
+        <button id="mobile-brake" class="control-btn brake">▼ BRAKE</button>
         <button id="mobile-nitro" class="control-btn nitro">NITRO ⚡</button>
         <button id="mobile-right" class="control-btn">RIGHT ▶</button>
     </div>
 
-    <!-- GAME CANVAS -->
     <canvas id="canvas"></canvas>
-
     <script src="script.js"></script>
 </body>
 </html>
